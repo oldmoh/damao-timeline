@@ -1,0 +1,28 @@
+# TODO
+
+- [ ] 完成 Redux 部分
+  - [ ] 完成 eventsSlice
+    - [ ] 包含存取資料庫的 CRUD
+    - [ ] 讀取的資料如何和 state 合併？
+    - [ ] 人事時地物，追加地點、參與者
+  - [ ] 完成 tagsSlice
+  - [x] 搞清楚 createSlice 的使用方法
+  - [x] 搞清楚 reduxTool 的 thunk 怎麼寫
+  - [x] createSlice 的 name 要複數還是單數?
+  - [x] redux 的寫法和 duck pattern 的差異，好像只差在 action 寫在一起?
+  - [x] 弄清楚 indexedDB 的註冊和存取
+  - [x] 決定資料保存方法
+    - [ ] localforage：太陽春
+    - [x] Dexie.js
+    - [ ] Redux-persist：overkill
+  - [x] 完成 db 的基本存取
+    - [x] 手動在 db.ts 增加 migrate 的部分
+- [ ] 完成 router 部分
+  - [ ] 學習 Router 怎麼規劃
+- [ ] 完成 react 部分
+  - [ ] 使用 material ui
+  - [ ] 規劃 app 整體 layout
+  - [ ] 專案架構怎麼分割，目前知道 feature，但是 page、component 之類的要怎麼劃分?
+    - [x] feature 裡面包含該 feature 的 component
+  - [ ] 多國語系
+  - [x] 使用 css module + sass
