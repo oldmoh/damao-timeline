@@ -1,8 +1,32 @@
 {
-  "101a6": {
-    "defaultMessage": "hahaha"
+  "AppBar": {
+    "defaultMessage": "時間軸"
   },
-  "hahaha": {
-    "defaultMessage": "hahaha"
+  "addStory": {
+    "defaultMessage": "新增"
+  },
+  "closeStoryForm": {
+    "defaultMessage": "關閉"
+  },
+  "storyColor": {
+    "defaultMessage": "顏色"
+  },
+  "storyDetail": {
+    "defaultMessage": "詳細"
+  },
+  "storyForm": {
+    "defaultMessage": "新增"
+  },
+  "storyHappenedAt": {
+    "defaultMessage": "發生時間"
+  },
+  "storyTags": {
+    "defaultMessage": "標籤"
+  },
+  "storyTitle": {
+    "defaultMessage": "事件名稱"
+  },
+  "submitStoryForm": {
+    "defaultMessage": "新增"
   }
 }

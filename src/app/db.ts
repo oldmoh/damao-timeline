@@ -1,9 +1,9 @@
 import Dexie from 'dexie'
 import { Tag } from '../features/tag/tagSlice'
-import { TimelineEvent } from '../features/timeline/timelineSlice'
+import { IStory } from '../features/timeline/timelineSlice'
 
 export class AppDatabase extends Dexie {
-  events!: Dexie.Table<TimelineEvent, number>
+  stories!: Dexie.Table<IStory, number>
   tags!: Dexie.Table<Tag, number>
 
   constructor() {
@@ -12,7 +12,7 @@ export class AppDatabase extends Dexie {
 
     // add migration from here
     db.version(1).stores({
-      events: '++id',
+      stories: '++id',
       tags: '++id, &name',
     })
     // the follwoing is version 2, 3, etc

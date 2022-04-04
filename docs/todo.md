@@ -2,7 +2,8 @@
 
 - [ ] 完成 Redux 部分
   - [ ] 完成 eventsSlice
-    - [ ] 包含存取資料庫的 CRUD
+    - [x] 包含存取資料庫的 CRUD
+    - [x] 怎麼讓 thunk 變成 rejected?
     - [ ] 讀取的資料如何和 state 合併？
     - [ ] 人事時地物，追加地點、參與者
   - [ ] 完成 tagsSlice
@@ -22,7 +23,22 @@
 - [ ] 完成 react 部分
   - [ ] 使用 material ui
   - [ ] 規劃 app 整體 layout
+    - [ ] header + drawer + main
+  - [ ] timeline component
+    - [ ] 模式 1：所有事件在同一個時間線顯示
+    - [ ] 模式 2：複數個時間線顯示
+    - [ ] 功能 1：依標籤、位置、參與者篩選
+    - [ ] 功能 2：移動到特定時間
+    - [ ] 功能 3：變更
+      - [x] C
+      - [x] U
+      - [ ] D
+    - [x] 詳細 View 兼輸入 Form
+      - [x] 把 Form 拆成獨立 component
+      - [x] 按下按鈕後讓 validation 失敗的 input 變成 error
   - [ ] 專案架構怎麼分割，目前知道 feature，但是 page、component 之類的要怎麼劃分?
     - [x] feature 裡面包含該 feature 的 component
   - [ ] 多國語系
+    - [ ] ID 自動注入（要 eject create react app 再設定組態的開發效率太差，依專案規模沒有必要）
+    - [x] 手動賦予 ID 再透過 extrect 和 compile 指令產生語言檔案
   - [x] 使用 css module + sass
