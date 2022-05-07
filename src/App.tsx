@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import logo from './logo.svg'
 import { Counter } from './features/counter/Counter'
+import { Routes, Route, Link } from 'react-router-dom'
 import './App.scss'
 import { insertStory } from './features/timeline/timelineSlice'
 import { AppDispatch } from './app/store'
@@ -15,70 +16,94 @@ import {
   IconButton,
   Toolbar,
   Typography,
+  Grid,
+  Box,
+  // Link,
 } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
 
+const drawerWidth = 300
+
 function App() {
   const dispatch: AppDispatch = useAppDispatch()
-  const buttonHandler = (story: any) =>
-    dispatch(
-      insertStory({
-        title: 'test2',
-        happenedAt: new Date().getTime(),
-        detail: '',
-        tagIds: [1],
-        color: '#FFFFFF',
-        isArchived: false,
-      })
-    )
-  const button2Handler = (event: any) =>
-    dispatch(
-      insertTag({
-        name: 'good thing',
-        description: 'gooooooood',
-        color: '#FFFFFF',
-      })
-    )
   const [isDrawerOpened, setIsDrawerOpened] = useState(false)
-  return (
+
+  const drawer = (
     <div>
-      <AppBar position="static">
+      <Toolbar />
+      <Button>Timeline</Button>
+    </div>
+  )
+
+  return (
+    <Box sx={{ display: 'flex' }}>
+      <AppBar
+        position="fixed"
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+        }}
+      >
         <Toolbar>
           <IconButton
             size="large"
             edge="start"
             color="inherit"
             aria-label="open drawer"
-            sx={{ mr: 2 }}
-            onClick={() => setIsDrawerOpened(true)}
+            sx={{ mr: 2, display: { xs: 'block', sm: 'none' } }}
+            onClick={() => setIsDrawerOpened((isOpened) => !isOpened)}
           >
             <MenuIcon />
           </IconButton>
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{ display: { xs: 'none', sm: 'block' } }}
-          >
+          <Typography variant="h6" noWrap component="div">
             <FormattedMessage defaultMessage="時間軸" id="AppBar" />
           </Typography>
         </Toolbar>
       </AppBar>
-      <div>
-        <Drawer open={isDrawerOpened} onClose={() => setIsDrawerOpened(false)}>
-          <nav>
-            <Button>Timeline</Button>
-          </nav>
+      <Box
+        component="nav"
+        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+      >
+        <Drawer
+          open={isDrawerOpened}
+          onClose={() => setIsDrawerOpened(false)}
+          variant="temporary"
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            display: { xs: 'block', sm: 'none' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+            },
+          }}
+        >
+          {drawer}
         </Drawer>
-        <main>
-          {/* <Counter /> */}
-          {/* <button onClick={buttonHandler}>haha</button>
-          <button onClick={button2Handler}>haha</button> */}
-          {/* <FormattedMessage defaultMessage="hahaha" id="hahaha" /> */}
-          <MyTimeline />
-        </main>
-      </div>
-    </div>
+        <Drawer
+          open
+          variant="permanent"
+          sx={{
+            display: { xs: 'none', sm: 'block' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+            },
+          }}
+        >
+          {drawer}
+        </Drawer>
+      </Box>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+        }}
+      >
+        <Toolbar />
+        <MyTimeline />
+      </Box>
+    </Box>
   )
 }
 
