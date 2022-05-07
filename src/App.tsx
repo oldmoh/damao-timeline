@@ -21,6 +21,7 @@ import {
   // Link,
 } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
+import { TimelineForm } from './features/timeline/TimelineForm'
 
 const drawerWidth = 300
 
@@ -31,7 +32,9 @@ function App() {
   const drawer = (
     <div>
       <Toolbar />
-      <Button>Timeline</Button>
+      <Button>
+        <Link to="/">Timeline</Link>
+      </Button>
     </div>
   )
 
@@ -101,7 +104,12 @@ function App() {
         }}
       >
         <Toolbar />
-        <MyTimeline />
+        <Routes>
+          <Route path="/" element={<MyTimeline />} />
+          <Route path="/story/create" element={<TimelineForm />} />
+          <Route path="/story/:storyId" element={<TimelineForm />} />
+          <Route path="/story/:storyId/update" element={<TimelineForm />} />
+        </Routes>
       </Box>
     </Box>
   )

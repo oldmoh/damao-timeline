@@ -7,6 +7,7 @@ import { Provider } from 'react-redux'
 import * as serviceWorker from './serviceWorker'
 import { IntlProvider } from 'react-intl'
 import * as langMessages from './compiled-lang/en.json'
+import { BrowserRouter } from 'react-router-dom'
 
 ReactDOM.render(
   <React.StrictMode>
@@ -16,7 +17,9 @@ ReactDOM.render(
         locale="zh-TW"
         defaultLocale="zh-TW"
       >
-        <App />
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
       </IntlProvider>
     </Provider>
   </React.StrictMode>,
