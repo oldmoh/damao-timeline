@@ -1,10 +1,10 @@
 import Dexie from 'dexie'
-import { Tag } from '../features/tag/tagSlice'
+import { ITag } from '../features/tag/tagSlice'
 import { IStory } from '../features/timeline/timelineSlice'
 
 export class AppDatabase extends Dexie {
   stories!: Dexie.Table<IStory, number>
-  tags!: Dexie.Table<Tag, number>
+  tags!: Dexie.Table<ITag, number>
 
   constructor() {
     super('timeline')

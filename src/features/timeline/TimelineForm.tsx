@@ -57,7 +57,7 @@ export const TimelineForm = () => {
       setTagIds(story.tagIds)
     }
 
-    setIsTimeInvalid(false)
+    setIsTitleInvalid(false)
     setIsTimeInvalid(false)
     setIsDetailInvalid(false)
     setIsColorInvalid(false)

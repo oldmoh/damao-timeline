@@ -7,7 +7,7 @@ import {
   Update,
 } from '@reduxjs/toolkit'
 import { RootState } from '../../app/store'
-import { Tag } from '../tag/tagSlice'
+import { ITag } from '../tag/tagSlice'
 import { db } from '../../app/db'
 
 export interface IStory {
@@ -51,6 +51,7 @@ export const selectAllStories = createAsyncThunk(
     return stories
   }
 )
+
 export const insertStory = createAsyncThunk(
   'timeline/insert',
   async (story: IStory, thunkAPI) => {

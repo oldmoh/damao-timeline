@@ -25,11 +25,15 @@ export const MyTimeline = () => {
     dispatch(selectAllStories())
   }, [])
 
+  const timelineItems = stories.map((story) => (
+    <StroyItem storyId={story.id!} key={`TimelineStory-${story.id}`} />
+  ))
+
   return (
     <Box>
       <Box>
         <ButtonGroup variant="contained">
-          <Button onClick={() => navigate('/story/create')}>
+          <Button onClick={() => navigate('/stories/create')}>
             <FormattedMessage defaultMessage="新增" id="addStory" />
           </Button>
         </ButtonGroup>
@@ -37,14 +41,7 @@ export const MyTimeline = () => {
       <Box>
         <Card>
           {status === 'loading' && <CircularProgress sx={{}} />}
-          <Timeline>
-            {stories.map((story) => (
-              <StroyItem
-                storyId={story.id!}
-                key={`TimelineStory-${story.id}`}
-              />
-            ))}
-          </Timeline>
+          <Timeline>{timelineItems}</Timeline>
         </Card>
       </Box>
     </Box>

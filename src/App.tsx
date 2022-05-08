@@ -22,6 +22,8 @@ import MenuIcon from '@mui/icons-material/Menu'
 import EventIcon from '@mui/icons-material/Event'
 import { TimelineForm } from './features/timeline/TimelineForm'
 import { MoreActionsMenu } from './components/MoreActionsMenu'
+import { TagsView } from './features/tag/TagsView'
+import { TagForm } from './features/tag/TagForm'
 
 const drawerWidth = 300
 
@@ -39,6 +41,14 @@ function App() {
               <EventIcon />
             </ListItemIcon>
             Timeline
+          </ListItemButton>
+        </ListItem>
+        <ListItem component={Link} to="/tags" color="inherit">
+          <ListItemButton>
+            <ListItemIcon>
+              <EventIcon />
+            </ListItemIcon>
+            Tag
           </ListItemButton>
         </ListItem>
       </List>
@@ -115,9 +125,11 @@ function App() {
         <Toolbar />
         <Routes>
           <Route path="/" element={<MyTimeline />} />
-          <Route path="/story/create" element={<TimelineForm />} />
-          <Route path="/story/:storyId" element={<TimelineForm />} />
-          <Route path="/story/:storyId/update" element={<TimelineForm />} />
+          <Route path="/stories/create" element={<TimelineForm />} />
+          <Route path="/stories/:storyId" element={<TimelineForm />} />
+          <Route path="/tags" element={<TagsView />} />
+          <Route path="/tags/create" element={<TagForm />} />
+          <Route path="/tags/:tagId" element={<TagForm />} />
         </Routes>
       </Box>
     </Box>

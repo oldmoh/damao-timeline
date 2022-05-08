@@ -48,7 +48,7 @@ export const StroyItem = ({ storyId }: { storyId: number }) => {
             <Typography>{story.detail}</Typography>
           </AccordionDetails>
           <AccordionActions>
-            <Link component={RouterLink} to={`/story/${story.id}`}>
+            <Link component={RouterLink} to={`/stories/${story.id}`}>
               <FormattedMessage defaultMessage="更新" id="updateStory" />
             </Link>
           </AccordionActions>
