@@ -11,16 +11,25 @@ import {
   Typography,
   ButtonGroup,
 } from '@mui/material'
-import { DateTimePicker, LocalizationProvider } from '@mui/lab'
+import { DateTimePicker, LoadingButton, LocalizationProvider } from '@mui/lab'
 import DateAdapter from '@mui/lab/AdapterMoment'
 import { FormattedMessage } from 'react-intl'
 
-import { insertStory, IStory, updateStory, selectById } from './timelineSlice'
+import {
+  insertStory,
+  IStory,
+  updateStory,
+  selectById,
+  deleteStory,
+  getTimelineStatus,
+} from './timelineSlice'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 
 export const TimelineForm = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
+
+  const status = useAppSelector(getTimelineStatus)
 
   const parameters: Params<string> = useParams()
   const storyId: number = parseInt(parameters.storyId ?? '0')
@@ -63,7 +72,7 @@ export const TimelineForm = () => {
     setIsColorInvalid(false)
   }, [story])
 
-  const onSubmit = () => {
+  const handleSubmit = () => {
     if (formElement.current === null || !formElement.current.checkValidity())
       return
 
@@ -87,7 +96,12 @@ export const TimelineForm = () => {
     navigate('/')
   }
 
-  const onClosed = () => {
+  const handleClose = () => {
+    navigate('/')
+  }
+
+  const handleDelete = () => {
+    if (story !== undefined) dispatch(deleteStory(story))
     navigate('/')
   }
 
@@ -156,14 +170,19 @@ export const TimelineForm = () => {
         </Stack>
       </form>
       <ButtonGroup>
-        <Button onClick={onSubmit}>
+        <LoadingButton onClick={handleSubmit} loading={status === 'loading'}>
           {story === undefined ? (
             <FormattedMessage defaultMessage="新增" id="addStory" />
           ) : (
             <FormattedMessage defaultMessage="更新" id="updateStory" />
           )}
-        </Button>
-        <Button onClick={onClosed}>
+        </LoadingButton>
+        {story !== undefined && (
+          <Button onClick={handleDelete} color="error" variant="contained">
+            <FormattedMessage defaultMessage="刪除" id="deleteStory" />
+          </Button>
+        )}
+        <Button onClick={handleClose}>
           <FormattedMessage defaultMessage="關閉" id="closeStoryForm" />
         </Button>
       </ButtonGroup>

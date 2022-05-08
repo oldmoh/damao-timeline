@@ -56,7 +56,6 @@ export const insertStory = createAsyncThunk(
   'timeline/insert',
   async (story: IStory, thunkAPI) => {
     // TODO: add validation at here
-
     try {
       await db.transaction('rw', db.stories, async () => {
         const id = await db.stories.add(story)

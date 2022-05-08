@@ -15,7 +15,7 @@ import { DateTimePicker, LocalizationProvider } from '@mui/lab'
 import DateAdapter from '@mui/lab/AdapterMoment'
 import { FormattedMessage } from 'react-intl'
 
-import { selectById, insertTag, ITag, updateTag } from './tagSlice'
+import { selectById, insertTag, ITag, updateTag, deleteTag } from './tagSlice'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 
 export const TagForm = () => {
@@ -55,7 +55,7 @@ export const TagForm = () => {
     setIsColorInvalid(false)
   }, [tag])
 
-  const onSubmit = () => {
+  const handleSubmit = () => {
     if (formElement.current === null || !formElement.current.checkValidity())
       return
 
@@ -76,7 +76,12 @@ export const TagForm = () => {
     navigate('/tags')
   }
 
-  const onClosed = () => {
+  const handleClose = () => {
+    navigate('/tags')
+  }
+
+  const handleDelete = () => {
+    if (tag !== undefined) dispatch(deleteTag(tag))
     navigate('/tags')
   }
 
@@ -122,14 +127,19 @@ export const TagForm = () => {
         </Stack>
       </form>
       <ButtonGroup>
-        <Button onClick={onSubmit}>
+        <Button onClick={handleSubmit}>
           {tag === undefined ? (
             <FormattedMessage defaultMessage="新增" id="addTag" />
           ) : (
             <FormattedMessage defaultMessage="更新" id="updateTag" />
           )}
         </Button>
-        <Button onClick={onClosed}>
+        {tag !== undefined && (
+          <Button onClick={handleDelete} color="error" variant="contained">
+            <FormattedMessage defaultMessage="刪除" id="deleteTag" />
+          </Button>
+        )}
+        <Button onClick={handleClose}>
           <FormattedMessage defaultMessage="關閉" id="closeTagForm" />
         </Button>
       </ButtonGroup>
