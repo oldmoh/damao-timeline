@@ -1,27 +1,27 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import logo from './logo.svg'
-import { Counter } from './features/counter/Counter'
 import { Routes, Route, Link } from 'react-router-dom'
 import './App.scss'
-import { insertStory } from './features/timeline/timelineSlice'
 import { AppDispatch } from './app/store'
 import { useAppDispatch } from './app/hooks'
-import { insertTag } from './features/tag/tagSlice'
 import { FormattedMessage } from 'react-intl'
 import { MyTimeline } from './features/timeline/MyTimeline'
 import {
   AppBar,
-  Button,
   Drawer,
   IconButton,
   Toolbar,
   Typography,
-  Grid,
   Box,
-  // Link,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemButton,
 } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
+import EventIcon from '@mui/icons-material/Event'
 import { TimelineForm } from './features/timeline/TimelineForm'
+import { MoreActionsMenu } from './components/MoreActionsMenu'
 
 const drawerWidth = 300
 
@@ -30,12 +30,19 @@ function App() {
   const [isDrawerOpened, setIsDrawerOpened] = useState(false)
 
   const drawer = (
-    <div>
+    <>
       <Toolbar />
-      <Button>
-        <Link to="/">Timeline</Link>
-      </Button>
-    </div>
+      <List>
+        <ListItem component={Link} to="/" color="inherit">
+          <ListItemButton>
+            <ListItemIcon>
+              <EventIcon />
+            </ListItemIcon>
+            Timeline
+          </ListItemButton>
+        </ListItem>
+      </List>
+    </>
   )
 
   return (
@@ -60,6 +67,8 @@ function App() {
           <Typography variant="h6" noWrap component="div">
             <FormattedMessage defaultMessage="時間軸" id="AppBar" />
           </Typography>
+          <Box sx={{ flexGrow: 1 }} />
+          <MoreActionsMenu />
         </Toolbar>
       </AppBar>
       <Box
