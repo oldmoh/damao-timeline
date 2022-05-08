@@ -20,6 +20,7 @@ import {
 } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
 import EventIcon from '@mui/icons-material/Event'
+import BookmarkIcon from '@mui/icons-material/Bookmark'
 import { TimelineForm } from './features/timeline/TimelineForm'
 import { MoreActionsMenu } from './components/MoreActionsMenu'
 import { TagsView } from './features/tag/TagsView'
@@ -46,7 +47,7 @@ function App() {
         <ListItem component={Link} to="/tags" color="inherit">
           <ListItemButton>
             <ListItemIcon>
-              <EventIcon />
+              <BookmarkIcon />
             </ListItemIcon>
             Tag
           </ListItemButton>

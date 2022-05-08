@@ -32,6 +32,7 @@ export const StroyItem = ({ storyId }: { storyId: number }) => {
         <p>{new Date(story.happenedAt).toISOString()}</p>
       </TimelineOppositeContent>
       <TimelineSeparator>
+        <TimelineConnector />
         <TimelineDot />
         <TimelineConnector />
       </TimelineSeparator>

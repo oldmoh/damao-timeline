@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useReducer, useRef } from 'react'
 import { useParams, Params, useNavigate } from 'react-router-dom'
 import {
   Button,
@@ -25,11 +25,55 @@ import {
 } from './timelineSlice'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 
+interface IFormState extends IStory {
+  isTitleInvalid: boolean
+  isTimeInvalid: boolean
+  isDetailInvalid: boolean
+  isColorInvalid: boolean
+}
+
+type Action =
+  | { type: 'update'; payload: any }
+  | { type: 'error'; message: string }
+
+function reducer(state: IFormState, action: Action) {
+  switch (action.type) {
+    case 'update':
+      return { ...state, ...action.payload }
+    case 'error':
+      return { ...state }
+    default:
+      return state
+  }
+}
+
+const initailState: IFormState = {
+  title: '',
+  happenedAt: new Date().getTime(),
+  detail: '',
+  color: '',
+  tagIds: [],
+  isTitleInvalid: false,
+  isTimeInvalid: false,
+  isDetailInvalid: false,
+  isColorInvalid: false,
+  isArchived: false,
+}
+
+/**
+ * create update action with payload
+ * @param payload payload
+ * @returns update action
+ */
+const updateFormState = (payload: { [index: string]: any }): Action => {
+  return { type: 'update', payload }
+}
+
 export const TimelineForm = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
-
   const status = useAppSelector(getTimelineStatus)
+  const [state, formDispatch] = useReducer(reducer, initailState)
 
   const parameters: Params<string> = useParams()
   const storyId: number = parseInt(parameters.storyId ?? '0')
@@ -38,38 +82,12 @@ export const TimelineForm = () => {
   // form controls
   const formElement = useRef<HTMLFormElement>(null)
 
-  // form inputs
-  const [title, setTitle] = useState<string>('')
-  const [happenedAt, setHappenedAt] = useState<number>(new Date().getTime())
-  const [detail, setDetail] = useState<string>('')
-  const [color, setColor] = useState<string>('')
-  const [tagIds, setTagIds] = useState<number[]>([])
-
-  // validation state of inputs
-  const [isTitleInvalid, setIsTitleInvalid] = useState(false)
-  const [isTimeInvalid, setIsTimeInvalid] = useState(false)
-  const [isDetailInvalid, setIsDetailInvalid] = useState(false)
-  const [isColorInvalid, setIsColorInvalid] = useState(false)
-
   useEffect(() => {
     if (story === undefined) {
-      setTitle('')
-      setHappenedAt(new Date().getTime())
-      setDetail('')
-      setColor('')
-      setTagIds([])
+      formDispatch(updateFormState(initailState))
     } else {
-      setTitle(story.title)
-      setHappenedAt(story.happenedAt)
-      setDetail(story.detail)
-      setColor(story.color)
-      setTagIds(story.tagIds)
+      formDispatch(updateFormState({ ...initailState, ...story }))
     }
-
-    setIsTitleInvalid(false)
-    setIsTimeInvalid(false)
-    setIsDetailInvalid(false)
-    setIsColorInvalid(false)
   }, [story])
 
   const handleSubmit = () => {
@@ -77,12 +95,12 @@ export const TimelineForm = () => {
       return
 
     let newStory: IStory = {
-      title: title,
-      detail: detail,
-      happenedAt: happenedAt,
-      tagIds,
-      color: color,
-      isArchived: false,
+      title: state.title,
+      detail: state.detail,
+      happenedAt: state.happenedAt,
+      tagIds: state.tagIds,
+      color: state.color,
+      isArchived: state.isArchived,
     }
     console.log(newStory)
 
@@ -122,10 +140,14 @@ export const TimelineForm = () => {
               <FormattedMessage defaultMessage="事件名稱" id="storyTitle" />
             }
             required
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            onInvalid={() => setIsTitleInvalid(true)}
-            error={isTitleInvalid}
+            value={state.title}
+            onChange={(event) =>
+              formDispatch(updateFormState({ title: event.target.value }))
+            }
+            onInvalid={() =>
+              formDispatch(updateFormState({ isTitleInvalid: true }))
+            }
+            error={state.isTitleInvalid}
           />
           <LocalizationProvider dateAdapter={DateAdapter}>
             <DateTimePicker
@@ -135,11 +157,13 @@ export const TimelineForm = () => {
                   id="storyHappenedAt"
                 />
               }
-              value={new Date(happenedAt)}
+              value={new Date(state.happenedAt)}
               inputFormat="MM/dd/yyyy"
               onChange={(storyDatetime) => {
                 if (storyDatetime === null) return
-                setHappenedAt(storyDatetime.valueOf())
+                formDispatch(
+                  updateFormState({ happenedAt: storyDatetime.valueOf() })
+                )
               }}
               renderInput={(params) => <TextField {...params} />}
             />
@@ -147,11 +171,15 @@ export const TimelineForm = () => {
           <TextField
             variant="outlined"
             label={<FormattedMessage defaultMessage="詳細" id="storyDetail" />}
-            onChange={(event) => setDetail(event.target.value)}
+            onChange={(event) =>
+              formDispatch(updateFormState({ detail: event.target.value }))
+            }
             multiline
-            value={detail}
-            onInvalid={() => setIsDetailInvalid(true)}
-            error={isDetailInvalid}
+            value={state.detail}
+            onInvalid={() =>
+              formDispatch(updateFormState({ isDetailInvalid: true }))
+            }
+            error={state.isDetailInvalid}
           />
           <FormGroup>
             <p>
@@ -162,10 +190,14 @@ export const TimelineForm = () => {
           <TextField
             variant="outlined"
             label={<FormattedMessage defaultMessage="顏色" id="storyColor" />}
-            onChange={(event) => setColor(event.target.value)}
-            onInvalid={() => setIsColorInvalid(true)}
-            error={isColorInvalid}
-            value={color}
+            onChange={(event) =>
+              formDispatch(updateFormState({ color: event.target.value }))
+            }
+            onInvalid={() =>
+              formDispatch(updateFormState({ isColorInvalid: true }))
+            }
+            error={state.isColorInvalid}
+            value={state.color}
           />
         </Stack>
       </form>

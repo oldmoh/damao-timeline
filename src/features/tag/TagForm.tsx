@@ -1,26 +1,63 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useReducer, useRef } from 'react'
 import { useParams, Params, useNavigate } from 'react-router-dom'
 import {
   Button,
-  Checkbox,
   Box,
-  FormControlLabel,
-  FormGroup,
   Stack,
   TextField,
   Typography,
   ButtonGroup,
 } from '@mui/material'
-import { DateTimePicker, LocalizationProvider } from '@mui/lab'
-import DateAdapter from '@mui/lab/AdapterMoment'
 import { FormattedMessage } from 'react-intl'
 
 import { selectById, insertTag, ITag, updateTag, deleteTag } from './tagSlice'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 
+interface IFormState extends ITag {
+  isTitleInvalid: boolean
+  isTimeInvalid: boolean
+  isDetailInvalid: boolean
+  isColorInvalid: boolean
+}
+
+type Action =
+  | { type: 'update'; payload: any }
+  | { type: 'error'; message: string }
+
+function reducer(state: IFormState, action: Action) {
+  switch (action.type) {
+    case 'update':
+      return { ...state, ...action.payload }
+    case 'error':
+      return { ...state }
+    default:
+      return state
+  }
+}
+
+const initailState: IFormState = {
+  name: '',
+  description: '',
+  color: '',
+  isTitleInvalid: false,
+  isTimeInvalid: false,
+  isDetailInvalid: false,
+  isColorInvalid: false,
+}
+
+/**
+ * create update action with payload
+ * @param payload payload
+ * @returns update action
+ */
+const updateFormState = (payload: { [index: string]: any }): Action => {
+  return { type: 'update', payload }
+}
+
 export const TagForm = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
+  const [state, formDispatch] = useReducer(reducer, initailState)
 
   const parameters: Params<string> = useParams()
   const tagId: number = parseInt(parameters.tagId ?? '0')
@@ -29,30 +66,12 @@ export const TagForm = () => {
   // form controls
   const formElement = useRef<HTMLFormElement>(null)
 
-  // form inputs
-  const [name, setName] = useState<string>('')
-  const [description, setDescription] = useState<string>('')
-  const [color, setColor] = useState<string>('')
-
-  // validation state of inputs
-  const [isNameInvalid, setIsNameInvalid] = useState(false)
-  const [isDescriptionInvalid, setIsDescriptionInvalid] = useState(false)
-  const [isColorInvalid, setIsColorInvalid] = useState(false)
-
   useEffect(() => {
     if (tag === undefined) {
-      setName('')
-      setDescription('')
-      setColor('')
+      formDispatch(updateFormState(initailState))
     } else {
-      setName(tag.name)
-      setDescription(tag.description)
-      setColor(tag.color)
+      formDispatch(updateFormState({ ...initailState, ...tag }))
     }
-
-    setIsNameInvalid(false)
-    setIsDescriptionInvalid(false)
-    setIsColorInvalid(false)
   }, [tag])
 
   const handleSubmit = () => {
@@ -60,9 +79,9 @@ export const TagForm = () => {
       return
 
     let newTag: ITag = {
-      name: name,
-      description: description,
-      color: color,
+      name: state.name,
+      description: state.description,
+      color: state.color,
     }
     console.log(newTag)
 
@@ -100,29 +119,41 @@ export const TagForm = () => {
             variant="outlined"
             label={<FormattedMessage defaultMessage="標籤名稱" id="tagName" />}
             required
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            onInvalid={() => setIsNameInvalid(true)}
-            error={isNameInvalid}
+            value={state.name}
+            onChange={(event) =>
+              formDispatch(updateFormState({ name: event.target.value }))
+            }
+            onInvalid={() =>
+              formDispatch(updateFormState({ isNameInvalid: true }))
+            }
+            error={state.isNameInvalid}
           />
           <TextField
             variant="outlined"
             label={
               <FormattedMessage defaultMessage="關於標籤" id="tagDescription" />
             }
-            onChange={(event) => setDescription(event.target.value)}
+            onChange={(event) =>
+              formDispatch(updateFormState({ description: event.target.value }))
+            }
             multiline
-            value={description}
-            onInvalid={() => setIsDescriptionInvalid(true)}
-            error={isDescriptionInvalid}
+            value={state.description}
+            onInvalid={() =>
+              formDispatch(updateFormState({ isDescriptionInvalid: true }))
+            }
+            error={state.isDescriptionInvalid}
           />
           <TextField
             variant="outlined"
             label={<FormattedMessage defaultMessage="代表顏色" id="tagColor" />}
-            onChange={(event) => setColor(event.target.value)}
-            onInvalid={() => setIsColorInvalid(true)}
-            error={isColorInvalid}
-            value={color}
+            onChange={(event) =>
+              formDispatch(updateFormState({ color: event.target.value }))
+            }
+            onInvalid={() =>
+              formDispatch(updateFormState({ isColorInvalid: true }))
+            }
+            error={state.isColorInvalid}
+            value={state.color}
           />
         </Stack>
       </form>
