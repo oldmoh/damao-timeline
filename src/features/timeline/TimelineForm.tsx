@@ -24,6 +24,7 @@ import {
   getTimelineStatus,
 } from './timelineSlice'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
+import { selectAll } from '../tag/tagSlice'
 
 interface IFormState extends IStory {
   isTitleInvalid: boolean
@@ -36,7 +37,7 @@ type Action =
   | { type: 'update'; payload: any }
   | { type: 'error'; message: string }
 
-function reducer(state: IFormState, action: Action) {
+function reducer(state: IFormState, action: Action): IFormState {
   switch (action.type) {
     case 'update':
       return { ...state, ...action.payload }
@@ -78,6 +79,7 @@ export const TimelineForm = () => {
   const parameters: Params<string> = useParams()
   const storyId: number = parseInt(parameters.storyId ?? '0')
   const story = useAppSelector((state) => selectById(state, storyId))
+  const tags = useAppSelector(selectAll)
 
   // form controls
   const formElement = useRef<HTMLFormElement>(null)
@@ -122,6 +124,27 @@ export const TimelineForm = () => {
     if (story !== undefined) dispatch(deleteStory(story))
     navigate('/')
   }
+
+  const tagCheckboxes = tags.map((tag) => (
+    <FormControlLabel
+      key={`Tag-${tag.id}`}
+      control={<Checkbox />}
+      checked={state.tagIds.includes(tag.id === undefined ? 0 : tag.id)}
+      label={tag.name}
+      value={tag.id}
+      onChange={(event) => {
+        const checkbox = event.target as HTMLInputElement
+        if (checkbox.checked)
+          formDispatch(updateFormState({ tagIds: [...state.tagIds, tag.id] }))
+        else
+          formDispatch(
+            updateFormState({
+              tagIds: state.tagIds.filter((id: number) => id !== tag.id),
+            })
+          )
+      }}
+    />
+  ))
 
   return (
     <Box>
@@ -185,7 +208,7 @@ export const TimelineForm = () => {
             <p>
               <FormattedMessage defaultMessage="標籤" id="storyTags" />
             </p>
-            <FormControlLabel control={<Checkbox />} label="" />
+            {tagCheckboxes}
           </FormGroup>
           <TextField
             variant="outlined"
