@@ -39,8 +39,8 @@ export const StroyItem = ({ storyId }: { storyId: number }) => {
       <Chip
         key={`TagId-${tag.id}`}
         label={tag.name}
-        color="primary"
         size="small"
+        sx={{ backgroundColor: tag.color }}
       />
     ))
 

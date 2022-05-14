@@ -12,6 +12,8 @@ import { FormattedMessage } from 'react-intl'
 
 import { selectById, insertTag, ITag, updateTag, deleteTag } from './tagSlice'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
+import ColorPicker from '../../components/ColorPicker'
+import { ColorResult } from 'react-color'
 
 interface IFormState {
   isNameInvalid: boolean
@@ -115,6 +117,17 @@ export default () => {
     </Button>
   )
 
+  const handleColorSelected = (
+    color: ColorResult,
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const colorString: string = [color.rgb.r, color.rgb.g, color.rgb.b].reduce(
+      (result, value) => `${result}${value.toString(16)}`,
+      '#'
+    )
+    updateFormTag({ color: colorString })
+  }
+
   return (
     <Box>
       <Typography>
@@ -125,7 +138,7 @@ export default () => {
         )}
       </Typography>
       <form ref={formElement}>
-        <Stack spacing={3} sx={{ marginTop: 3 }}>
+        <Stack spacing={3} sx={{ marginTop: 3, marginBottom: 3 }}>
           <TextField
             variant="outlined"
             label={<FormattedMessage defaultMessage="標籤名稱" id="tagName" />}
@@ -150,15 +163,10 @@ export default () => {
               dispatch(updateFormState({ isDescriptionInvalid: true }))
             }
           />
-          <TextField
-            variant="outlined"
-            label={<FormattedMessage defaultMessage="代表顏色" id="tagColor" />}
-            error={state.isColorInvalid}
-            value={state.tag.color}
-            onChange={({ target }) => updateFormTag({ color: target.value })}
-            onInvalid={() =>
-              dispatch(updateFormState({ isColorInvalid: true }))
-            }
+          <ColorPicker
+            color={state.tag.color}
+            onChangeComplete={handleColorSelected}
+            label="標籤顏色"
           />
         </Stack>
       </form>

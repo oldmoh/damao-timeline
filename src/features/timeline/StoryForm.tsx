@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef } from 'react'
+import React, { useEffect, useReducer, useRef } from 'react'
 import { useParams, Params, useNavigate } from 'react-router-dom'
 import {
   Button,
@@ -14,6 +14,7 @@ import {
 import { DateTimePicker, LoadingButton, LocalizationProvider } from '@mui/lab'
 import DateAdapter from '@mui/lab/AdapterMoment'
 import { FormattedMessage } from 'react-intl'
+import { ColorResult } from 'react-color'
 
 import {
   insertStory,
@@ -25,6 +26,8 @@ import {
 } from './timelineSlice'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { selectAll } from '../tag/tagSlice'
+import ColorPicker from '../../components/ColorPicker'
+import { LocalOffer } from '@mui/icons-material'
 
 interface IFormState {
   isTitleInvalid: boolean
@@ -133,7 +136,12 @@ export default () => {
       key={`Tag-${tag.id}`}
       control={<Checkbox />}
       checked={state.story.tagIds.includes(tag.id === undefined ? 0 : tag.id)}
-      label={tag.name}
+      label={
+        <Stack direction="row">
+          <LocalOffer sx={{ color: tag.color }} />
+          {tag.name}
+        </Stack>
+      }
       value={tag.id}
       onChange={({ target }) => {
         const checkbox = target as HTMLInputElement
@@ -153,6 +161,17 @@ export default () => {
     </Button>
   )
 
+  const handleColorSelected = (
+    color: ColorResult,
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const colorString: string = [color.rgb.r, color.rgb.g, color.rgb.b].reduce(
+      (result, value) => `${result}${value.toString(16)}`,
+      '#'
+    )
+    updateFormStory({ color: colorString })
+  }
+
   return (
     <Box>
       <Typography>
@@ -163,7 +182,7 @@ export default () => {
         )}
       </Typography>
       <form ref={formElement}>
-        <Stack spacing={3} sx={{ marginTop: 3 }}>
+        <Stack spacing={3} sx={{ marginTop: 3, marginBottom: 3 }}>
           <TextField
             variant="outlined"
             label={
@@ -211,15 +230,10 @@ export default () => {
             </p>
             {tagCheckboxes}
           </FormGroup>
-          <TextField
-            variant="outlined"
-            label={<FormattedMessage defaultMessage="顏色" id="storyColor" />}
-            error={state.isColorInvalid}
-            value={state.story.color}
-            onChange={({ target }) => updateFormStory({ color: target.value })}
-            onInvalid={() =>
-              dispatch(updateFormState({ isColorInvalid: true }))
-            }
+          <ColorPicker
+            color={state.story.color}
+            onChangeComplete={handleColorSelected}
+            label="代表顏色"
           />
         </Stack>
       </form>

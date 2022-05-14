@@ -14,6 +14,7 @@ import { Box } from '@mui/system'
 
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { selectAll, selectAllTags } from './tagSlice'
+import { LocalOffer } from '@mui/icons-material'
 
 export default () => {
   const dispatch = useAppDispatch()
@@ -23,7 +24,9 @@ export default () => {
   const listItems = tags.map((tag) => (
     <ListItem key={`TimelineTag-${tag.id}`}>
       <ListItemButton onClick={() => navigate(`/tags/${tag.id}`)}>
-        <ListItemIcon>{tag.color}</ListItemIcon>
+        <ListItemIcon>
+          <LocalOffer sx={{ color: tag.color }} />
+        </ListItemIcon>
         <ListItemText>{tag.name}</ListItemText>
         <ListItemText>{tag.description}</ListItemText>
       </ListItemButton>
