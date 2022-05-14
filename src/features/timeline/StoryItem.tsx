@@ -4,7 +4,10 @@ import {
   AccordionActions,
   AccordionDetails,
   AccordionSummary,
-  Link,
+  Button,
+  Chip,
+  Divider,
+  Stack,
   Typography,
 } from '@mui/material'
 import {
@@ -20,11 +23,26 @@ import { FormattedMessage } from 'react-intl'
 
 import { useAppSelector } from '../../app/hooks'
 import { selectById } from './timelineSlice'
+import { selectAll } from '../tag/tagSlice'
+import { useState } from 'react'
 
 export const StroyItem = ({ storyId }: { storyId: number }) => {
   const story = useAppSelector((state) => selectById(state, storyId))
+  const tags = useAppSelector(selectAll)
+  const [isExpanded, toggleIsExpanded] = useState(false)
 
   if (story === undefined) return <div></div>
+
+  const storyTags = tags
+    .filter((tag) => story.tagIds.includes(tag.id!))
+    .map((tag) => (
+      <Chip
+        key={`TagId-${tag.id}`}
+        label={tag.name}
+        color="primary"
+        size="small"
+      />
+    ))
 
   return (
     <TimelineItem>
@@ -37,21 +55,36 @@ export const StroyItem = ({ storyId }: { storyId: number }) => {
         <TimelineConnector />
       </TimelineSeparator>
       <TimelineContent>
-        <Accordion>
+        <Accordion
+          expanded={isExpanded}
+          onChange={() => toggleIsExpanded(!isExpanded)}
+        >
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel3a-content"
             id="panel3a-header"
           >
-            <Typography>{story.title}</Typography>
+            <Typography variant={isExpanded ? 'h6' : 'body1'}>
+              {story.title}
+            </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography>{story.detail}</Typography>
+            <Stack spacing={2}>
+              <Typography color="text.secondary">{story.detail}</Typography>
+              <Divider />
+              <Stack direction="row" spacing={1}>
+                {storyTags}
+              </Stack>
+            </Stack>
           </AccordionDetails>
           <AccordionActions>
-            <Link component={RouterLink} to={`/stories/${story.id}`}>
+            <Button
+              variant="contained"
+              component={RouterLink}
+              to={`/stories/${story.id}`}
+            >
               <FormattedMessage defaultMessage="更新" id="updateStory" />
-            </Link>
+            </Button>
           </AccordionActions>
         </Accordion>
       </TimelineContent>
