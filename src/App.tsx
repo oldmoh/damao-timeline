@@ -12,6 +12,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemButton,
+  CssBaseline,
 } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
 import EventIcon from '@mui/icons-material/Event'
@@ -52,6 +53,7 @@ function App() {
 
   return (
     <Box sx={{ display: 'flex' }}>
+      <CssBaseline />
       <AppBar
         position="fixed"
         sx={{
