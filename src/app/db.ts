@@ -16,6 +16,26 @@ export class AppDatabase extends Dexie {
       tags: '++id, &name',
     })
     // the follwoing is version 2, 3, etc
+    db.version(2).upgrade((tx) => {
+      tx.table<IStory>('stories')
+        .toCollection()
+        .modify((story) => {
+          story.version = 1
+          story.createAt = new Date().getTime()
+          story.updatedAt = new Date().getTime()
+
+          return story
+        })
+      tx.table<ITag>('tags')
+        .toCollection()
+        .modify((tag) => {
+          tag.version = 1
+          tag.createAt = new Date().getTime()
+          tag.updatedAt = new Date().getTime()
+
+          return tag
+        })
+    })
   }
 }
 

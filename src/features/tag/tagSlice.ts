@@ -3,14 +3,14 @@ import {
   createEntityAdapter,
   createSlice,
   EntityState,
-  nanoid,
   PayloadAction,
   Update,
 } from '@reduxjs/toolkit'
 import { db } from '../../app/db'
 import { RootState } from '../../app/store'
+import { EntityBase } from '../../common/EntityBase'
 
-export interface ITag {
+export interface ITag extends EntityBase {
   id?: number
   name: string
   description: string
@@ -51,6 +51,9 @@ export const selectAllTags = createAsyncThunk(
 export const insertTag = createAsyncThunk(
   'tag/insert',
   async (tag: ITag, thunkAPI) => {
+    tag.version = tag.version === undefined ? 1 : tag.version + 1
+    tag.createAt = new Date().getTime()
+    tag.updatedAt = new Date().getTime()
     try {
       await db.transaction('rw', db.tags, async () => {
         const id = await db.tags.add(tag)
@@ -73,15 +76,28 @@ export const updateTag = createAsyncThunk(
         thunkAPI.rejectWithValue('error message id here')
         return tag
       }
-      let updatedRecordCount: number = 0
-      await db.transaction('rw', db.tags, async () => {
-        updatedRecordCount = await db.tags.update(tag.id!, tag)
-      })
 
-      if (updatedRecordCount === 0) {
-        // TODO: add message id
-        thunkAPI.rejectWithValue('error message id here')
-      }
+      tag.updatedAt = new Date().getTime()
+      tag.version = tag.version === undefined ? 1 : tag.version + 1
+      await db.transaction('rw', db.tags, async () => {
+        const record = await db.tags.get(tag.id!)
+        if (record === undefined || record.version === undefined) {
+          // TODO: add message id
+          thunkAPI.rejectWithValue('error message id here')
+          return
+        }
+        if (tag.version === record.version) {
+          // TODO: add message id
+          thunkAPI.rejectWithValue('error message id here')
+          return
+        }
+
+        const updatedRecordCount: number = await db.tags.update(tag.id!, tag)
+        if (updatedRecordCount === 0) {
+          // TODO: add message id
+          thunkAPI.rejectWithValue('error message id here')
+        }
+      })
     } catch (error) {
       // dispatch exception occurred while updaing
       thunkAPI.dispatch(tagSlice.actions.setError('error message id here'))

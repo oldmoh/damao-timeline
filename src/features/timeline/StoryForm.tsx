@@ -26,21 +26,25 @@ import {
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { selectAll } from '../tag/tagSlice'
 
-interface IFormState extends IStory {
+interface IFormState {
   isTitleInvalid: boolean
   isTimeInvalid: boolean
   isDetailInvalid: boolean
   isColorInvalid: boolean
+  story: IStory
 }
 
 type Action =
   | { type: 'update'; payload: any }
+  | { type: 'updateStory'; payload: any }
   | { type: 'error'; message: string }
 
 function reducer(state: IFormState, action: Action): IFormState {
   switch (action.type) {
     case 'update':
       return { ...state, ...action.payload }
+    case 'updateStory':
+      return { ...state, story: { ...state.story, ...action.payload } }
     case 'error':
       return { ...state }
     default:
@@ -49,16 +53,18 @@ function reducer(state: IFormState, action: Action): IFormState {
 }
 
 const initailState: IFormState = {
-  title: '',
-  happenedAt: new Date().getTime(),
-  detail: '',
-  color: '',
-  tagIds: [],
   isTitleInvalid: false,
   isTimeInvalid: false,
   isDetailInvalid: false,
   isColorInvalid: false,
-  isArchived: false,
+  story: {
+    title: '',
+    happenedAt: new Date().getTime(),
+    detail: '',
+    color: '',
+    tagIds: [],
+    isArchived: false,
+  },
 }
 
 /**
@@ -71,24 +77,23 @@ const updateFormState = (payload: { [index: string]: any }): Action => {
 }
 
 export default () => {
-  const dispatch = useAppDispatch()
+  const appDispatch = useAppDispatch()
   const navigate = useNavigate()
   const status = useAppSelector(getTimelineStatus)
-  const [state, formDispatch] = useReducer(reducer, initailState)
+  const [state, dispatch] = useReducer(reducer, initailState)
 
   const parameters: Params<string> = useParams()
   const storyId: number = parseInt(parameters.storyId ?? '0')
   const story = useAppSelector((state) => selectById(state, storyId))
   const tags = useAppSelector(selectAll)
 
-  // form controls
   const formElement = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
     if (story === undefined) {
-      formDispatch(updateFormState(initailState))
+      dispatch(updateFormState(initailState))
     } else {
-      formDispatch(updateFormState({ ...initailState, ...story }))
+      dispatch(updateFormState({ ...initailState, story: { ...story } }))
     }
   }, [story])
 
@@ -97,20 +102,15 @@ export default () => {
       return
 
     let newStory: IStory = {
-      title: state.title,
-      detail: state.detail,
-      happenedAt: state.happenedAt,
-      tagIds: state.tagIds,
-      color: state.color,
-      isArchived: state.isArchived,
+      ...state.story,
     }
     console.log(newStory)
 
     if (story === undefined) {
-      dispatch(insertStory(newStory))
+      appDispatch(insertStory(newStory))
     } else {
       newStory.id = story.id
-      dispatch(updateStory(newStory))
+      appDispatch(updateStory(newStory))
     }
 
     navigate('/')
@@ -121,30 +121,37 @@ export default () => {
   }
 
   const handleDelete = () => {
-    if (story !== undefined) dispatch(deleteStory(story))
+    if (story !== undefined) appDispatch(deleteStory(story))
     navigate('/')
   }
+
+  const updateFormStory = (payload: { [index: string]: any }) =>
+    dispatch({ type: 'updateStory', payload })
 
   const tagCheckboxes = tags.map((tag) => (
     <FormControlLabel
       key={`Tag-${tag.id}`}
       control={<Checkbox />}
-      checked={state.tagIds.includes(tag.id === undefined ? 0 : tag.id)}
+      checked={state.story.tagIds.includes(tag.id === undefined ? 0 : tag.id)}
       label={tag.name}
       value={tag.id}
-      onChange={(event) => {
-        const checkbox = event.target as HTMLInputElement
+      onChange={({ target }) => {
+        const checkbox = target as HTMLInputElement
         if (checkbox.checked)
-          formDispatch(updateFormState({ tagIds: [...state.tagIds, tag.id] }))
+          updateFormStory({ tagIds: [...state.story.tagIds, tag.id] })
         else
-          formDispatch(
-            updateFormState({
-              tagIds: state.tagIds.filter((id: number) => id !== tag.id),
-            })
-          )
+          updateFormStory({
+            tagIds: state.story.tagIds.filter((id: number) => id !== tag.id),
+          })
       }}
     />
   ))
+
+  const deleteButton = (
+    <Button onClick={handleDelete} color="error" variant="contained">
+      <FormattedMessage defaultMessage="刪除" id="deleteStory" />
+    </Button>
+  )
 
   return (
     <Box>
@@ -163,14 +170,12 @@ export default () => {
               <FormattedMessage defaultMessage="事件名稱" id="storyTitle" />
             }
             required
-            value={state.title}
-            onChange={(event) =>
-              formDispatch(updateFormState({ title: event.target.value }))
-            }
-            onInvalid={() =>
-              formDispatch(updateFormState({ isTitleInvalid: true }))
-            }
+            value={state.story.title}
             error={state.isTitleInvalid}
+            onChange={(event) => updateFormStory({ title: event.target.value })}
+            onInvalid={() =>
+              dispatch(updateFormState({ isTitleInvalid: true }))
+            }
           />
           <LocalizationProvider dateAdapter={DateAdapter}>
             <DateTimePicker
@@ -180,29 +185,25 @@ export default () => {
                   id="storyHappenedAt"
                 />
               }
-              value={new Date(state.happenedAt)}
-              inputFormat="MM/dd/yyyy"
+              value={new Date(state.story.happenedAt)}
+              inputFormat="yyyy/MM/DD"
+              renderInput={(params) => <TextField {...params} />}
               onChange={(storyDatetime) => {
                 if (storyDatetime === null) return
-                formDispatch(
-                  updateFormState({ happenedAt: storyDatetime.valueOf() })
-                )
+                updateFormStory({ happenedAt: storyDatetime.valueOf() })
               }}
-              renderInput={(params) => <TextField {...params} />}
             />
           </LocalizationProvider>
           <TextField
             variant="outlined"
             label={<FormattedMessage defaultMessage="詳細" id="storyDetail" />}
-            onChange={(event) =>
-              formDispatch(updateFormState({ detail: event.target.value }))
-            }
             multiline
-            value={state.detail}
-            onInvalid={() =>
-              formDispatch(updateFormState({ isDetailInvalid: true }))
-            }
+            value={state.story.detail}
             error={state.isDetailInvalid}
+            onChange={({ target }) => updateFormStory({ detail: target.value })}
+            onInvalid={() =>
+              dispatch(updateFormState({ isDetailInvalid: true }))
+            }
           />
           <FormGroup>
             <p>
@@ -213,14 +214,12 @@ export default () => {
           <TextField
             variant="outlined"
             label={<FormattedMessage defaultMessage="顏色" id="storyColor" />}
-            onChange={(event) =>
-              formDispatch(updateFormState({ color: event.target.value }))
-            }
-            onInvalid={() =>
-              formDispatch(updateFormState({ isColorInvalid: true }))
-            }
             error={state.isColorInvalid}
-            value={state.color}
+            value={state.story.color}
+            onChange={({ target }) => updateFormStory({ color: target.value })}
+            onInvalid={() =>
+              dispatch(updateFormState({ isColorInvalid: true }))
+            }
           />
         </Stack>
       </form>
@@ -232,11 +231,7 @@ export default () => {
             <FormattedMessage defaultMessage="更新" id="updateStory" />
           )}
         </LoadingButton>
-        {story !== undefined && (
-          <Button onClick={handleDelete} color="error" variant="contained">
-            <FormattedMessage defaultMessage="刪除" id="deleteStory" />
-          </Button>
-        )}
+        {story !== undefined && deleteButton}
         <Button onClick={handleClose}>
           <FormattedMessage defaultMessage="關閉" id="closeStoryForm" />
         </Button>

@@ -13,21 +13,24 @@ import { FormattedMessage } from 'react-intl'
 import { selectById, insertTag, ITag, updateTag, deleteTag } from './tagSlice'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 
-interface IFormState extends ITag {
-  isTitleInvalid: boolean
-  isTimeInvalid: boolean
-  isDetailInvalid: boolean
+interface IFormState {
+  isNameInvalid: boolean
+  isDescriptionInvalid: boolean
   isColorInvalid: boolean
+  tag: ITag
 }
 
 type Action =
   | { type: 'update'; payload: any }
+  | { type: 'updateTag'; payload: any }
   | { type: 'error'; message: string }
 
-function reducer(state: IFormState, action: Action) {
+function reducer(state: IFormState, action: Action): IFormState {
   switch (action.type) {
     case 'update':
       return { ...state, ...action.payload }
+    case 'updateTag':
+      return { ...state, tag: { ...state.tag, ...action.payload } }
     case 'error':
       return { ...state }
     default:
@@ -36,13 +39,10 @@ function reducer(state: IFormState, action: Action) {
 }
 
 const initailState: IFormState = {
-  name: '',
-  description: '',
-  color: '',
-  isTitleInvalid: false,
-  isTimeInvalid: false,
-  isDetailInvalid: false,
+  isNameInvalid: false,
+  isDescriptionInvalid: false,
   isColorInvalid: false,
+  tag: { name: '', description: '', color: '' },
 }
 
 /**
@@ -55,41 +55,46 @@ const updateFormState = (payload: { [index: string]: any }): Action => {
 }
 
 export default () => {
-  const dispatch = useAppDispatch()
+  const appDispatch = useAppDispatch()
   const navigate = useNavigate()
-  const [state, formDispatch] = useReducer(reducer, initailState)
+  const [state, dispatch] = useReducer(reducer, initailState)
 
   const parameters: Params<string> = useParams()
   const tagId: number = parseInt(parameters.tagId ?? '0')
   const tag = useAppSelector((state) => selectById(state, tagId))
 
-  // form controls
   const formElement = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
     if (tag === undefined) {
-      formDispatch(updateFormState(initailState))
+      dispatch(updateFormState(initailState))
     } else {
-      formDispatch(updateFormState({ ...initailState, ...tag }))
+      dispatch(
+        updateFormState({
+          ...initailState,
+          tag: { ...tag },
+        })
+      )
     }
   }, [tag])
+
+  const updateFormTag = (payload: { [index: string]: any }) =>
+    dispatch({ type: 'updateTag', payload })
 
   const handleSubmit = () => {
     if (formElement.current === null || !formElement.current.checkValidity())
       return
 
     let newTag: ITag = {
-      name: state.name,
-      description: state.description,
-      color: state.color,
+      ...state.tag,
     }
     console.log(newTag)
 
     if (tag === undefined) {
-      dispatch(insertTag(newTag))
+      appDispatch(insertTag(newTag))
     } else {
       newTag.id = tag.id
-      dispatch(updateTag(newTag))
+      appDispatch(updateTag(newTag))
     }
 
     navigate('/tags')
@@ -100,9 +105,15 @@ export default () => {
   }
 
   const handleDelete = () => {
-    if (tag !== undefined) dispatch(deleteTag(tag))
+    if (tag !== undefined) appDispatch(deleteTag(tag))
     navigate('/tags')
   }
+
+  const deleteButton = (
+    <Button onClick={handleDelete} color="error" variant="contained">
+      <FormattedMessage defaultMessage="刪除" id="deleteTag" />
+    </Button>
+  )
 
   return (
     <Box>
@@ -119,41 +130,35 @@ export default () => {
             variant="outlined"
             label={<FormattedMessage defaultMessage="標籤名稱" id="tagName" />}
             required
-            value={state.name}
-            onChange={(event) =>
-              formDispatch(updateFormState({ name: event.target.value }))
-            }
-            onInvalid={() =>
-              formDispatch(updateFormState({ isNameInvalid: true }))
-            }
+            value={state.tag.name}
             error={state.isNameInvalid}
+            onChange={({ target }) => updateFormTag({ name: target.value })}
+            onInvalid={() => dispatch(updateFormState({ isNameInvalid: true }))}
           />
           <TextField
             variant="outlined"
             label={
               <FormattedMessage defaultMessage="關於標籤" id="tagDescription" />
             }
-            onChange={(event) =>
-              formDispatch(updateFormState({ description: event.target.value }))
-            }
             multiline
-            value={state.description}
-            onInvalid={() =>
-              formDispatch(updateFormState({ isDescriptionInvalid: true }))
-            }
+            value={state.tag.description}
             error={state.isDescriptionInvalid}
+            onChange={({ target }) =>
+              updateFormTag({ description: target.value })
+            }
+            onInvalid={() =>
+              dispatch(updateFormState({ isDescriptionInvalid: true }))
+            }
           />
           <TextField
             variant="outlined"
             label={<FormattedMessage defaultMessage="代表顏色" id="tagColor" />}
-            onChange={(event) =>
-              formDispatch(updateFormState({ color: event.target.value }))
-            }
-            onInvalid={() =>
-              formDispatch(updateFormState({ isColorInvalid: true }))
-            }
             error={state.isColorInvalid}
-            value={state.color}
+            value={state.tag.color}
+            onChange={({ target }) => updateFormTag({ color: target.value })}
+            onInvalid={() =>
+              dispatch(updateFormState({ isColorInvalid: true }))
+            }
           />
         </Stack>
       </form>
@@ -165,11 +170,7 @@ export default () => {
             <FormattedMessage defaultMessage="更新" id="updateTag" />
           )}
         </Button>
-        {tag !== undefined && (
-          <Button onClick={handleDelete} color="error" variant="contained">
-            <FormattedMessage defaultMessage="刪除" id="deleteTag" />
-          </Button>
-        )}
+        {tag !== undefined && deleteButton}
         <Button onClick={handleClose}>
           <FormattedMessage defaultMessage="關閉" id="closeTagForm" />
         </Button>
