@@ -54,7 +54,7 @@ const updateFormState = (payload: { [index: string]: any }): Action => {
   return { type: 'update', payload }
 }
 
-export const TagForm = () => {
+export default () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const [state, formDispatch] = useReducer(reducer, initailState)

@@ -70,7 +70,7 @@ const updateFormState = (payload: { [index: string]: any }): Action => {
   return { type: 'update', payload }
 }
 
-export const TimelineForm = () => {
+export default () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const status = useAppSelector(getTimelineStatus)

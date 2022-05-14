@@ -15,7 +15,7 @@ import { selectAll, getTimelineStatus, selectAllStories } from './timelineSlice'
 import { FormattedMessage } from 'react-intl'
 import { StroyItem } from './StoryItem'
 
-export const MyTimeline = () => {
+export default () => {
   const dispatch = useAppDispatch()
   const stories = useAppSelector(selectAll)
   const status = useAppSelector(getTimelineStatus)

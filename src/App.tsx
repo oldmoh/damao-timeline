@@ -1,11 +1,6 @@
 import { useState } from 'react'
-import logo from './logo.svg'
-import { Routes, Route, Link } from 'react-router-dom'
-import './App.scss'
-import { AppDispatch } from './app/store'
-import { useAppDispatch } from './app/hooks'
+import { Link } from 'react-router-dom'
 import { FormattedMessage } from 'react-intl'
-import { MyTimeline } from './features/timeline/MyTimeline'
 import {
   AppBar,
   Drawer,
@@ -21,15 +16,14 @@ import {
 import MenuIcon from '@mui/icons-material/Menu'
 import EventIcon from '@mui/icons-material/Event'
 import BookmarkIcon from '@mui/icons-material/Bookmark'
-import { TimelineForm } from './features/timeline/TimelineForm'
+
+import './App.scss'
 import { MoreActionsMenu } from './components/MoreActionsMenu'
-import { TagsView } from './features/tag/TagsView'
-import { TagForm } from './features/tag/TagForm'
+import Routes from './app/Routes'
 
 const drawerWidth = 300
 
 function App() {
-  const dispatch: AppDispatch = useAppDispatch()
   const [isDrawerOpened, setIsDrawerOpened] = useState(false)
 
   const drawer = (
@@ -124,14 +118,7 @@ function App() {
         }}
       >
         <Toolbar />
-        <Routes>
-          <Route path="/" element={<MyTimeline />} />
-          <Route path="/stories/create" element={<TimelineForm />} />
-          <Route path="/stories/:storyId" element={<TimelineForm />} />
-          <Route path="/tags" element={<TagsView />} />
-          <Route path="/tags/create" element={<TagForm />} />
-          <Route path="/tags/:tagId" element={<TagForm />} />
-        </Routes>
+        <Routes />
       </Box>
     </Box>
   )

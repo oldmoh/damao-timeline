@@ -15,7 +15,7 @@ import { Box } from '@mui/system'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { selectAll, selectAllTags } from './tagSlice'
 
-export const TagsView = () => {
+export default () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const tags = useAppSelector(selectAll)
