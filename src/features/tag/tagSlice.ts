@@ -196,3 +196,5 @@ export default tagSlice.reducer
 export const { selectById, selectAll } = tagAdapter.getSelectors<RootState>(
   (state) => state.tag
 )
+
+export const getTagStatus = (state: RootState) => state.tag.status

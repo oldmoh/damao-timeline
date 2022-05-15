@@ -4,8 +4,8 @@ import {
   Box,
   Button,
   ButtonGroup,
-  Card,
   CircularProgress,
+  Stack,
   Typography,
 } from '@mui/material'
 import { Timeline } from '@mui/lab'
@@ -30,7 +30,8 @@ export default () => {
   ))
 
   return (
-    <Box>
+    <Stack spacing={4}>
+      <Typography variant="h5">時間軸</Typography>
       <Box>
         <ButtonGroup variant="contained">
           <Button onClick={() => navigate('/stories/create')}>
@@ -38,12 +39,10 @@ export default () => {
           </Button>
         </ButtonGroup>
       </Box>
-      <Box>
-        <Card>
-          {status === 'loading' && <CircularProgress sx={{}} />}
-          <Timeline>{timelineItems}</Timeline>
-        </Card>
+      <Box sx={{ display: 'flex' }}>
+        {status === 'loading' && <CircularProgress />}
+        {status === 'succeeded' && <Timeline>{timelineItems}</Timeline>}
       </Box>
-    </Box>
+    </Stack>
   )
 }

@@ -156,7 +156,7 @@ export default () => {
   ))
 
   const deleteButton = (
-    <Button onClick={handleDelete} color="error" variant="contained">
+    <Button onClick={handleDelete} color="error" variant="outlined">
       <FormattedMessage defaultMessage="刪除" id="deleteStory" />
     </Button>
   )
@@ -238,7 +238,12 @@ export default () => {
         </Stack>
       </form>
       <ButtonGroup>
-        <LoadingButton onClick={handleSubmit} loading={status === 'loading'}>
+        <LoadingButton
+          variant="outlined"
+          onClick={handleSubmit}
+          loading={status === 'loading'}
+          color="success"
+        >
           {story === undefined ? (
             <FormattedMessage defaultMessage="新增" id="addStory" />
           ) : (
@@ -246,7 +251,7 @@ export default () => {
           )}
         </LoadingButton>
         {story !== undefined && deleteButton}
-        <Button onClick={handleClose}>
+        <Button onClick={handleClose} variant="outlined">
           <FormattedMessage defaultMessage="關閉" id="closeStoryForm" />
         </Button>
       </ButtonGroup>
