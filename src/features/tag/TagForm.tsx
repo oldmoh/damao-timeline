@@ -8,6 +8,8 @@ import {
   Typography,
   ButtonGroup,
   CircularProgress,
+  Snackbar,
+  Alert,
 } from '@mui/material'
 import { FormattedMessage } from 'react-intl'
 
@@ -18,26 +20,29 @@ import {
   updateTag,
   deleteTag,
   getTagStatus,
+  getErrorMessage,
 } from './tagSlice'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import ColorPicker from '../../components/ColorPicker'
 import { ColorResult } from 'react-color'
+import { LoadingButton } from '@mui/lab'
 
 interface IFormState {
   isNameInvalid: boolean
   isDescriptionInvalid: boolean
   isColorInvalid: boolean
   tag: ITag
+  showErrorSnackbar: boolean
 }
 
 type Action =
-  | { type: 'update'; payload: any }
+  | { type: 'updateState'; payload: any }
   | { type: 'updateTag'; payload: any }
   | { type: 'error'; message: string }
 
 function reducer(state: IFormState, action: Action): IFormState {
   switch (action.type) {
-    case 'update':
+    case 'updateState':
       return { ...state, ...action.payload }
     case 'updateTag':
       return { ...state, tag: { ...state.tag, ...action.payload } }
@@ -53,6 +58,7 @@ const initailState: IFormState = {
   isDescriptionInvalid: false,
   isColorInvalid: false,
   tag: { name: '', description: '', color: '' },
+  showErrorSnackbar: false,
 }
 
 /**
@@ -61,18 +67,19 @@ const initailState: IFormState = {
  * @returns update action
  */
 const updateFormState = (payload: { [index: string]: any }): Action => {
-  return { type: 'update', payload }
+  return { type: 'updateState', payload }
 }
 
 export default () => {
   const appDispatch = useAppDispatch()
   const navigate = useNavigate()
-  const [state, dispatch] = useReducer(reducer, initailState)
-
   const parameters: Params<string> = useParams()
   const tagId: number = parseInt(parameters.tagId ?? '0')
   const tag = useAppSelector((state) => selectById(state, tagId))
   const status = useAppSelector(getTagStatus)
+  const errorMessage = useAppSelector(getErrorMessage)
+
+  const [formState, dispatch] = useReducer(reducer, initailState)
 
   const formElement = useRef<HTMLFormElement>(null)
 
@@ -89,6 +96,21 @@ export default () => {
     }
   }, [tag])
 
+  useEffect(() => {
+    switch (status) {
+      case 'inserted':
+      case 'updated':
+      case 'deleted':
+        navigate('/tags')
+        break
+      case 'failed':
+        dispatch(updateFormState({ showErrorSnackbar: true }))
+        break
+      default:
+        break
+    }
+  }, [status])
+
   const updateFormTag = (payload: { [index: string]: any }) =>
     dispatch({ type: 'updateTag', payload })
 
@@ -96,19 +118,11 @@ export default () => {
     if (formElement.current === null || !formElement.current.checkValidity())
       return
 
-    let newTag: ITag = {
-      ...state.tag,
-    }
-    console.log(newTag)
-
     if (tag === undefined) {
-      appDispatch(insertTag(newTag))
+      appDispatch(insertTag(formState.tag))
     } else {
-      newTag.id = tag.id
-      appDispatch(updateTag(newTag))
+      appDispatch(updateTag(formState.tag))
     }
-
-    navigate('/tags')
   }
 
   const handleClose = () => {
@@ -116,19 +130,21 @@ export default () => {
   }
 
   const handleDelete = () => {
-    if (tag !== undefined) appDispatch(deleteTag(tag))
-    navigate('/tags')
+    appDispatch(deleteTag(tag!))
   }
 
   const deleteButton = (
-    <Button
+    <LoadingButton
       onClick={handleDelete}
+      variant="outlined"
       color="error"
-      variant="contained"
-      disabled={status !== 'succeeded'}
+      disabled={
+        status === 'loading' || status === 'inserting' || status === 'updating'
+      }
+      loading={status === 'deleting'}
     >
       <FormattedMessage defaultMessage="刪除" id="deleteTag" />
-    </Button>
+    </LoadingButton>
   )
 
   const handleColorSelected = (
@@ -149,8 +165,8 @@ export default () => {
           variant="outlined"
           label={<FormattedMessage defaultMessage="標籤名稱" id="tagName" />}
           required
-          value={state.tag.name}
-          error={state.isNameInvalid}
+          value={formState.tag.name}
+          error={formState.isNameInvalid}
           onChange={({ target }) => updateFormTag({ name: target.value })}
           onInvalid={() => dispatch(updateFormState({ isNameInvalid: true }))}
         />
@@ -160,8 +176,8 @@ export default () => {
             <FormattedMessage defaultMessage="關於標籤" id="tagDescription" />
           }
           multiline
-          value={state.tag.description}
-          error={state.isDescriptionInvalid}
+          value={formState.tag.description}
+          error={formState.isDescriptionInvalid}
           onChange={({ target }) =>
             updateFormTag({ description: target.value })
           }
@@ -170,7 +186,7 @@ export default () => {
           }
         />
         <ColorPicker
-          color={state.tag.color}
+          color={formState.tag.color}
           onChangeComplete={handleColorSelected}
           label="標籤顏色"
         />
@@ -188,20 +204,36 @@ export default () => {
         )}
       </Typography>
       {status === 'loading' && <CircularProgress />}
-      {status === 'succeeded' && tagForm}
+      {status !== 'loading' && tagForm}
       <ButtonGroup>
-        <Button onClick={handleSubmit} disabled={status !== 'succeeded'}>
+        <LoadingButton
+          onClick={handleSubmit}
+          disabled={status === 'loading' || status === 'deleting'}
+          loading={status === 'inserting' || status === 'updating'}
+          variant="outlined"
+        >
           {tag === undefined ? (
             <FormattedMessage defaultMessage="新增" id="addTag" />
           ) : (
             <FormattedMessage defaultMessage="更新" id="updateTag" />
           )}
-        </Button>
+        </LoadingButton>
         {tag !== undefined && deleteButton}
         <Button onClick={handleClose}>
           <FormattedMessage defaultMessage="關閉" id="closeTagForm" />
         </Button>
       </ButtonGroup>
+      <Snackbar
+        autoHideDuration={3000}
+        open={formState.showErrorSnackbar}
+        onClose={() => {
+          dispatch(updateFormState({ showErrorSnackbar: false }))
+        }}
+      >
+        <Alert variant="outlined" severity="error">
+          {errorMessage}
+        </Alert>
+      </Snackbar>
     </Stack>
   )
 }

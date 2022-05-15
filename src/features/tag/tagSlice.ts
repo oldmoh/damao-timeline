@@ -18,7 +18,17 @@ export interface ITag extends EntityBase {
 }
 
 interface TagState extends EntityState<ITag> {
-  status: 'idle' | 'loading' | 'succeeded' | 'failed'
+  status:
+    | 'idle'
+    | 'loading'
+    | 'succeeded'
+    | 'failed'
+    | 'inserting'
+    | 'inserted'
+    | 'updating'
+    | 'updated'
+    | 'deleting'
+    | 'deleted'
   error: string | null
 }
 
@@ -42,7 +52,7 @@ export const selectAllTags = createAsyncThunk(
         async () => await db.tags.toArray()
       )
     } catch (error) {
-      thunkAPI.dispatch(tagSlice.actions.setError('error message id here'))
+      return thunkAPI.rejectWithValue(error)
     }
     return tags
   }
@@ -61,7 +71,7 @@ export const insertTag = createAsyncThunk(
       })
       return tag
     } catch (error) {
-      return tag
+      return thunkAPI.rejectWithValue('error message id here')
     }
   }
 )
@@ -73,8 +83,7 @@ export const updateTag = createAsyncThunk(
       // TODO: add more validation at here
       if (tag.id === undefined) {
         // TODO: add message id
-        thunkAPI.rejectWithValue('error message id here')
-        return tag
+        return thunkAPI.rejectWithValue('error message id here')
       }
 
       tag.updatedAt = new Date().getTime()
@@ -83,24 +92,22 @@ export const updateTag = createAsyncThunk(
         const record = await db.tags.get(tag.id!)
         if (record === undefined || record.version === undefined) {
           // TODO: add message id
-          thunkAPI.rejectWithValue('error message id here')
-          return
+          return thunkAPI.rejectWithValue('error message id here')
         }
         if (tag.version === record.version) {
           // TODO: add message id
-          thunkAPI.rejectWithValue('error message id here')
-          return
+          return thunkAPI.rejectWithValue('error message id here')
         }
 
         const updatedRecordCount: number = await db.tags.update(tag.id!, tag)
         if (updatedRecordCount === 0) {
           // TODO: add message id
-          thunkAPI.rejectWithValue('error message id here')
+          return thunkAPI.rejectWithValue('error message id here')
         }
       })
     } catch (error) {
       // dispatch exception occurred while updaing
-      thunkAPI.dispatch(tagSlice.actions.setError('error message id here'))
+      return thunkAPI.rejectWithValue(error)
     }
     return tag
   }
@@ -112,8 +119,7 @@ export const deleteTag = createAsyncThunk(
     if (tag.id === undefined) {
       // dispatch validation failed
       // TODO: add message id
-      thunkAPI.rejectWithValue('error message id here')
-      return tag
+      return thunkAPI.rejectWithValue('error message id here')
     }
 
     try {
@@ -122,7 +128,7 @@ export const deleteTag = createAsyncThunk(
       })
     } catch (error) {
       // TODO: add message id
-      thunkAPI.rejectWithValue('error message id here')
+      return thunkAPI.rejectWithValue('error message id here')
     }
     return tag
   }
@@ -147,23 +153,24 @@ const tagSlice = createSlice({
       })
       .addCase(selectAllTags.rejected, (state, action) => {
         state.status = 'failed'
+        state.error = action.payload as string
       })
       .addCase(insertTag.pending, (state, action) => {
-        state.status = 'loading'
+        state.status = 'inserting'
       })
       .addCase(insertTag.fulfilled, (state, action: PayloadAction<ITag>) => {
-        state.status = 'succeeded'
+        state.status = 'inserted'
         tagAdapter.addOne(state, action.payload)
       })
       .addCase(insertTag.rejected, (state, action) => {
         state.status = 'failed'
-        state.error = action.error.message ?? null
+        state.error = action.payload as string
       })
       .addCase(updateTag.pending, (state, action) => {
-        state.status = 'loading'
+        state.status = 'updating'
       })
       .addCase(updateTag.fulfilled, (state, action: PayloadAction<ITag>) => {
-        state.status = 'succeeded'
+        state.status = 'updated'
         const payload = action.payload
         const updatedTag: Update<ITag> = {
           id: payload.id!,
@@ -173,18 +180,18 @@ const tagSlice = createSlice({
       })
       .addCase(updateTag.rejected, (state, action) => {
         state.status = 'failed'
-        state.error = action.error.message ?? null
+        state.error = action.payload as string
       })
       .addCase(deleteTag.pending, (state, action) => {
-        state.status = 'loading'
+        state.status = 'deleting'
       })
       .addCase(deleteTag.fulfilled, (state, action: PayloadAction<ITag>) => {
-        state.status = 'succeeded'
+        state.status = 'deleted'
         tagAdapter.removeOne(state, action.payload.id!)
       })
       .addCase(deleteTag.rejected, (state, action) => {
         state.status = 'failed'
-        state.error = action.error.message ?? null
+        state.error = action.payload as string
       })
   },
 })
@@ -198,3 +205,4 @@ export const { selectById, selectAll } = tagAdapter.getSelectors<RootState>(
 )
 
 export const getTagStatus = (state: RootState) => state.tag.status
+export const getErrorMessage = (state: RootState) => state.tag.error

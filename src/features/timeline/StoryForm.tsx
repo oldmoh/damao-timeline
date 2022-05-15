@@ -11,6 +11,8 @@ import {
   Typography,
   ButtonGroup,
   CircularProgress,
+  Snackbar,
+  Alert,
 } from '@mui/material'
 import { DateTimePicker, LoadingButton, LocalizationProvider } from '@mui/lab'
 import DateAdapter from '@mui/lab/AdapterMoment'
@@ -24,6 +26,7 @@ import {
   selectById,
   deleteStory,
   getTimelineStatus,
+  getErrorMessage,
 } from './timelineSlice'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { selectAll } from '../tag/tagSlice'
@@ -36,6 +39,7 @@ interface IFormState {
   isDetailInvalid: boolean
   isColorInvalid: boolean
   story: IStory
+  showErrorSnackbar: boolean
 }
 
 type Action =
@@ -43,6 +47,12 @@ type Action =
   | { type: 'updateStory'; payload: any }
   | { type: 'error'; message: string }
 
+/**
+ * reducer of this element
+ * @param state the state of the this element
+ * @param action action
+ * @returns new state
+ */
 function reducer(state: IFormState, action: Action): IFormState {
   switch (action.type) {
     case 'update':
@@ -69,6 +79,7 @@ const initailState: IFormState = {
     tagIds: [],
     isArchived: false,
   },
+  showErrorSnackbar: false,
 }
 
 /**
@@ -83,14 +94,14 @@ const updateFormState = (payload: { [index: string]: any }): Action => {
 export default () => {
   const appDispatch = useAppDispatch()
   const navigate = useNavigate()
-  const status = useAppSelector(getTimelineStatus)
-  const [state, dispatch] = useReducer(reducer, initailState)
-
   const parameters: Params<string> = useParams()
   const storyId: number = parseInt(parameters.storyId ?? '0')
+  const status = useAppSelector(getTimelineStatus)
+  const errorMessage = useAppSelector(getErrorMessage)
   const story = useAppSelector((state) => selectById(state, storyId))
   const tags = useAppSelector(selectAll)
 
+  const [state, dispatch] = useReducer(reducer, initailState)
   const formElement = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
@@ -101,23 +112,30 @@ export default () => {
     }
   }, [story])
 
+  useEffect(() => {
+    switch (status) {
+      case 'inserted':
+      case 'updated':
+      case 'deleted':
+        navigate('/')
+        break
+      case 'failed':
+        dispatch(updateFormState({ showErrorSnackbar: true }))
+        break
+      default:
+        break
+    }
+  }, [status])
+
   const handleSubmit = () => {
     if (formElement.current === null || !formElement.current.checkValidity())
       return
 
-    let newStory: IStory = {
-      ...state.story,
-    }
-    console.log(newStory)
-
     if (story === undefined) {
-      appDispatch(insertStory(newStory))
+      appDispatch(insertStory(state.story))
     } else {
-      newStory.id = story.id
-      appDispatch(updateStory(newStory))
+      appDispatch(updateStory(state.story))
     }
-
-    navigate('/')
   }
 
   const handleClose = () => {
@@ -125,8 +143,7 @@ export default () => {
   }
 
   const handleDelete = () => {
-    if (story !== undefined) appDispatch(deleteStory(story))
-    navigate('/')
+    appDispatch(deleteStory(story!))
   }
 
   const updateFormStory = (payload: { [index: string]: any }) =>
@@ -157,14 +174,17 @@ export default () => {
   ))
 
   const deleteButton = (
-    <Button
+    <LoadingButton
       onClick={handleDelete}
       color="error"
       variant="outlined"
-      disabled={status !== 'succeeded'}
+      disabled={
+        status === 'loading' || status === 'inserting' || status === 'updating'
+      }
+      loading={status === 'deleting'}
     >
       <FormattedMessage defaultMessage="刪除" id="deleteStory" />
-    </Button>
+    </LoadingButton>
   )
 
   const handleColorSelected = (
@@ -241,25 +261,37 @@ export default () => {
         )}
       </Typography>
       {status === 'loading' && <CircularProgress />}
-      {status === 'succeeded' && storyForm}
+      {status !== 'loading' && storyForm}
       <ButtonGroup>
-        <Button
+        <LoadingButton
           variant="outlined"
           onClick={handleSubmit}
           color="success"
-          disabled={status !== 'succeeded'}
+          disabled={status === 'loading' || status === 'deleting'}
+          loading={status === 'inserting' || status === 'updating'}
         >
           {story === undefined ? (
             <FormattedMessage defaultMessage="新增" id="addStory" />
           ) : (
             <FormattedMessage defaultMessage="更新" id="updateStory" />
           )}
-        </Button>
+        </LoadingButton>
         {story !== undefined && deleteButton}
         <Button onClick={handleClose} variant="outlined">
           <FormattedMessage defaultMessage="關閉" id="closeStoryForm" />
         </Button>
       </ButtonGroup>
+      <Snackbar
+        autoHideDuration={3000}
+        open={state.showErrorSnackbar}
+        onClose={() => {
+          dispatch(updateFormState({ showErrorSnackbar: false }))
+        }}
+      >
+        <Alert variant="outlined" severity="error">
+          {errorMessage}
+        </Alert>
+      </Snackbar>
     </Stack>
   )
 }

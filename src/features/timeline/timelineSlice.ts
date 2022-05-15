@@ -21,7 +21,17 @@ export interface IStory extends EntityBase {
 }
 
 interface TimlineState extends EntityState<IStory> {
-  status: 'idle' | 'loading' | 'succeeded' | 'failed'
+  status:
+    | 'idle'
+    | 'loading'
+    | 'succeeded'
+    | 'failed'
+    | 'inserting'
+    | 'inserted'
+    | 'updating'
+    | 'updated'
+    | 'deleting'
+    | 'deleted'
   error: string | null
 }
 
@@ -46,7 +56,7 @@ export const selectAllStories = createAsyncThunk(
         async () => await db.stories.toArray()
       )
     } catch (error) {
-      thunkAPI.dispatch(timelineSlice.actions.setError('error message id here'))
+      return thunkAPI.rejectWithValue(error)
     }
     return stories
   }
@@ -66,7 +76,7 @@ export const insertStory = createAsyncThunk(
       })
     } catch (error) {
       // TODO: add message id
-      thunkAPI.rejectWithValue('error message id here')
+      return thunkAPI.rejectWithValue(error)
     }
     return story
   }
@@ -79,8 +89,7 @@ export const updateStory = createAsyncThunk(
       // TODO: add more validation at here
       if (story.id === undefined) {
         // TODO: add message id
-        thunkAPI.rejectWithValue('error message id here')
-        return story
+        return thunkAPI.rejectWithValue('error message id here')
       }
 
       story.updatedAt = new Date().getTime()
@@ -89,27 +98,24 @@ export const updateStory = createAsyncThunk(
         const record = await db.stories.get(story.id!)
         if (record === undefined || record.version === undefined) {
           // TODO: add message id
-          thunkAPI.rejectWithValue('error message id here')
-          return
+          return thunkAPI.rejectWithValue('error message id here')
         }
         if (story.version! <= record.version) {
           // TODO: add message id
-          thunkAPI.rejectWithValue('error message id here')
-          return
+          return thunkAPI.rejectWithValue('error message id here')
         }
-
         const updatedRecordCount: number = await db.stories.update(
           story.id!,
           story
         )
         if (updatedRecordCount === 0) {
           // TODO: add message id
-          thunkAPI.rejectWithValue('error message id here')
+          return thunkAPI.rejectWithValue('error message id here')
         }
       })
     } catch (error) {
       // dispatch exception occurred while updaing
-      thunkAPI.dispatch(timelineSlice.actions.setError('error message id here'))
+      return thunkAPI.rejectWithValue(error)
     }
     return story
   }
@@ -121,8 +127,7 @@ export const deleteStory = createAsyncThunk(
     if (story.id === undefined) {
       // dispatch validation failed
       // TODO: add message id
-      thunkAPI.rejectWithValue('error message id here')
-      return story
+      return thunkAPI.rejectWithValue('error message id here')
     }
 
     try {
@@ -131,7 +136,7 @@ export const deleteStory = createAsyncThunk(
       })
     } catch (error) {
       // TODO: add message id
-      thunkAPI.rejectWithValue('error message id here')
+      return thunkAPI.rejectWithValue('error message id here')
     }
     return story
   }
@@ -162,28 +167,29 @@ const timelineSlice = createSlice({
       })
       .addCase(selectAllStories.rejected, (state, action) => {
         state.status = 'failed'
+        state.error = action.payload as string
       })
       .addCase(insertStory.pending, (state, action) => {
-        state.status = 'loading'
+        state.status = 'inserting'
       })
       .addCase(
         insertStory.fulfilled,
         (state, action: PayloadAction<IStory>) => {
-          state.status = 'succeeded'
+          state.status = 'inserted'
           storyAdapter.addOne(state, action.payload)
         }
       )
       .addCase(insertStory.rejected, (state, action) => {
         state.status = 'failed'
-        state.error = action.error.message ?? null
+        state.error = action.payload as string
       })
       .addCase(updateStory.pending, (state, action) => {
-        state.status = 'loading'
+        state.status = 'updating'
       })
       .addCase(
         updateStory.fulfilled,
         (state, action: PayloadAction<IStory>) => {
-          state.status = 'succeeded'
+          state.status = 'updated'
           const payload = action.payload
           const updatedStory: Update<IStory> = {
             id: payload.id!,
@@ -194,21 +200,22 @@ const timelineSlice = createSlice({
       )
       .addCase(updateStory.rejected, (state, action) => {
         state.status = 'failed'
-        state.error = action.error.message ?? null
+        console.log(action.payload)
+        state.error = action.payload as string
       })
       .addCase(deleteStory.pending, (state, action) => {
-        state.status = 'loading'
+        state.status = 'deleting'
       })
       .addCase(
         deleteStory.fulfilled,
         (state, action: PayloadAction<IStory>) => {
-          state.status = 'succeeded'
+          state.status = 'deleted'
           storyAdapter.removeOne(state, action.payload.id!)
         }
       )
       .addCase(deleteStory.rejected, (state, action) => {
         state.status = 'failed'
-        state.error = action.error.message ?? null
+        state.error = action.payload as string
       })
   },
 })
@@ -222,3 +229,4 @@ export const { selectById, selectAll } = storyAdapter.getSelectors<RootState>(
 )
 
 export const getTimelineStatus = (state: RootState) => state.timeline.status
+export const getErrorMessage = (state: RootState) => state.timeline.error
