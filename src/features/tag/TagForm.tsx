@@ -7,10 +7,18 @@ import {
   TextField,
   Typography,
   ButtonGroup,
+  CircularProgress,
 } from '@mui/material'
 import { FormattedMessage } from 'react-intl'
 
-import { selectById, insertTag, ITag, updateTag, deleteTag } from './tagSlice'
+import {
+  selectById,
+  insertTag,
+  ITag,
+  updateTag,
+  deleteTag,
+  getTagStatus,
+} from './tagSlice'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import ColorPicker from '../../components/ColorPicker'
 import { ColorResult } from 'react-color'
@@ -64,6 +72,7 @@ export default () => {
   const parameters: Params<string> = useParams()
   const tagId: number = parseInt(parameters.tagId ?? '0')
   const tag = useAppSelector((state) => selectById(state, tagId))
+  const status = useAppSelector(getTagStatus)
 
   const formElement = useRef<HTMLFormElement>(null)
 
@@ -112,7 +121,12 @@ export default () => {
   }
 
   const deleteButton = (
-    <Button onClick={handleDelete} color="error" variant="contained">
+    <Button
+      onClick={handleDelete}
+      color="error"
+      variant="contained"
+      disabled={status !== 'succeeded'}
+    >
       <FormattedMessage defaultMessage="刪除" id="deleteTag" />
     </Button>
   )
@@ -128,50 +142,55 @@ export default () => {
     updateFormTag({ color: colorString })
   }
 
+  const tagForm = (
+    <form ref={formElement}>
+      <Stack spacing={3} sx={{ marginTop: 3, marginBottom: 3 }}>
+        <TextField
+          variant="outlined"
+          label={<FormattedMessage defaultMessage="標籤名稱" id="tagName" />}
+          required
+          value={state.tag.name}
+          error={state.isNameInvalid}
+          onChange={({ target }) => updateFormTag({ name: target.value })}
+          onInvalid={() => dispatch(updateFormState({ isNameInvalid: true }))}
+        />
+        <TextField
+          variant="outlined"
+          label={
+            <FormattedMessage defaultMessage="關於標籤" id="tagDescription" />
+          }
+          multiline
+          value={state.tag.description}
+          error={state.isDescriptionInvalid}
+          onChange={({ target }) =>
+            updateFormTag({ description: target.value })
+          }
+          onInvalid={() =>
+            dispatch(updateFormState({ isDescriptionInvalid: true }))
+          }
+        />
+        <ColorPicker
+          color={state.tag.color}
+          onChangeComplete={handleColorSelected}
+          label="標籤顏色"
+        />
+      </Stack>
+    </form>
+  )
+
   return (
-    <Box>
-      <Typography>
+    <Stack spacing={2}>
+      <Typography variant="h5">
         {tag === undefined ? (
           <FormattedMessage defaultMessage="新增" id="insetStoryFormTitle" />
         ) : (
           <FormattedMessage defaultMessage="更新" id="updateStoryFormTitle" />
         )}
       </Typography>
-      <form ref={formElement}>
-        <Stack spacing={3} sx={{ marginTop: 3, marginBottom: 3 }}>
-          <TextField
-            variant="outlined"
-            label={<FormattedMessage defaultMessage="標籤名稱" id="tagName" />}
-            required
-            value={state.tag.name}
-            error={state.isNameInvalid}
-            onChange={({ target }) => updateFormTag({ name: target.value })}
-            onInvalid={() => dispatch(updateFormState({ isNameInvalid: true }))}
-          />
-          <TextField
-            variant="outlined"
-            label={
-              <FormattedMessage defaultMessage="關於標籤" id="tagDescription" />
-            }
-            multiline
-            value={state.tag.description}
-            error={state.isDescriptionInvalid}
-            onChange={({ target }) =>
-              updateFormTag({ description: target.value })
-            }
-            onInvalid={() =>
-              dispatch(updateFormState({ isDescriptionInvalid: true }))
-            }
-          />
-          <ColorPicker
-            color={state.tag.color}
-            onChangeComplete={handleColorSelected}
-            label="標籤顏色"
-          />
-        </Stack>
-      </form>
+      {status === 'loading' && <CircularProgress />}
+      {status === 'succeeded' && tagForm}
       <ButtonGroup>
-        <Button onClick={handleSubmit}>
+        <Button onClick={handleSubmit} disabled={status !== 'succeeded'}>
           {tag === undefined ? (
             <FormattedMessage defaultMessage="新增" id="addTag" />
           ) : (
@@ -183,6 +202,6 @@ export default () => {
           <FormattedMessage defaultMessage="關閉" id="closeTagForm" />
         </Button>
       </ButtonGroup>
-    </Box>
+    </Stack>
   )
 }

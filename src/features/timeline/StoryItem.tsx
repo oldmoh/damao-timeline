@@ -51,7 +51,7 @@ export const StroyItem = ({ storyId }: { storyId: number }) => {
       </TimelineOppositeContent>
       <TimelineSeparator>
         <TimelineConnector />
-        <TimelineDot />
+        <TimelineDot sx={{ backgroundColor: story.color }} />
         <TimelineConnector />
       </TimelineSeparator>
       <TimelineContent>

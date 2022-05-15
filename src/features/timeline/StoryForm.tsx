@@ -10,6 +10,7 @@ import {
   TextField,
   Typography,
   ButtonGroup,
+  CircularProgress,
 } from '@mui/material'
 import { DateTimePicker, LoadingButton, LocalizationProvider } from '@mui/lab'
 import DateAdapter from '@mui/lab/AdapterMoment'
@@ -156,7 +157,12 @@ export default () => {
   ))
 
   const deleteButton = (
-    <Button onClick={handleDelete} color="error" variant="outlined">
+    <Button
+      onClick={handleDelete}
+      color="error"
+      variant="outlined"
+      disabled={status !== 'succeeded'}
+    >
       <FormattedMessage defaultMessage="刪除" id="deleteStory" />
     </Button>
   )
@@ -172,89 +178,88 @@ export default () => {
     updateFormStory({ color: colorString })
   }
 
+  const storyForm = (
+    <form ref={formElement}>
+      <Stack spacing={3} sx={{ marginTop: 3, marginBottom: 3 }}>
+        <TextField
+          variant="outlined"
+          label={<FormattedMessage defaultMessage="事件名稱" id="storyTitle" />}
+          required
+          value={state.story.title}
+          error={state.isTitleInvalid}
+          onChange={(event) => updateFormStory({ title: event.target.value })}
+          onInvalid={() => dispatch(updateFormState({ isTitleInvalid: true }))}
+        />
+        <LocalizationProvider dateAdapter={DateAdapter}>
+          <DateTimePicker
+            label={
+              <FormattedMessage
+                defaultMessage="發生時間"
+                id="storyHappenedAt"
+              />
+            }
+            value={new Date(state.story.happenedAt)}
+            inputFormat="yyyy/MM/DD"
+            renderInput={(params) => <TextField {...params} />}
+            onChange={(storyDatetime) => {
+              if (storyDatetime === null) return
+              updateFormStory({ happenedAt: storyDatetime.valueOf() })
+            }}
+          />
+        </LocalizationProvider>
+        <TextField
+          variant="outlined"
+          label={<FormattedMessage defaultMessage="詳細" id="storyDetail" />}
+          multiline
+          value={state.story.detail}
+          error={state.isDetailInvalid}
+          onChange={({ target }) => updateFormStory({ detail: target.value })}
+          onInvalid={() => dispatch(updateFormState({ isDetailInvalid: true }))}
+        />
+        <FormGroup>
+          <p>
+            <FormattedMessage defaultMessage="標籤" id="storyTags" />
+          </p>
+          {tagCheckboxes}
+        </FormGroup>
+        <ColorPicker
+          color={state.story.color}
+          onChangeComplete={handleColorSelected}
+          label="代表顏色"
+        />
+      </Stack>
+    </form>
+  )
+
   return (
-    <Box>
-      <Typography>
+    <Stack spacing={2}>
+      <Typography variant="h5">
         {story === undefined ? (
           <FormattedMessage defaultMessage="新增" id="insetStoryFormTitle" />
         ) : (
           <FormattedMessage defaultMessage="更新" id="updateStoryFormTitle" />
         )}
       </Typography>
-      <form ref={formElement}>
-        <Stack spacing={3} sx={{ marginTop: 3, marginBottom: 3 }}>
-          <TextField
-            variant="outlined"
-            label={
-              <FormattedMessage defaultMessage="事件名稱" id="storyTitle" />
-            }
-            required
-            value={state.story.title}
-            error={state.isTitleInvalid}
-            onChange={(event) => updateFormStory({ title: event.target.value })}
-            onInvalid={() =>
-              dispatch(updateFormState({ isTitleInvalid: true }))
-            }
-          />
-          <LocalizationProvider dateAdapter={DateAdapter}>
-            <DateTimePicker
-              label={
-                <FormattedMessage
-                  defaultMessage="發生時間"
-                  id="storyHappenedAt"
-                />
-              }
-              value={new Date(state.story.happenedAt)}
-              inputFormat="yyyy/MM/DD"
-              renderInput={(params) => <TextField {...params} />}
-              onChange={(storyDatetime) => {
-                if (storyDatetime === null) return
-                updateFormStory({ happenedAt: storyDatetime.valueOf() })
-              }}
-            />
-          </LocalizationProvider>
-          <TextField
-            variant="outlined"
-            label={<FormattedMessage defaultMessage="詳細" id="storyDetail" />}
-            multiline
-            value={state.story.detail}
-            error={state.isDetailInvalid}
-            onChange={({ target }) => updateFormStory({ detail: target.value })}
-            onInvalid={() =>
-              dispatch(updateFormState({ isDetailInvalid: true }))
-            }
-          />
-          <FormGroup>
-            <p>
-              <FormattedMessage defaultMessage="標籤" id="storyTags" />
-            </p>
-            {tagCheckboxes}
-          </FormGroup>
-          <ColorPicker
-            color={state.story.color}
-            onChangeComplete={handleColorSelected}
-            label="代表顏色"
-          />
-        </Stack>
-      </form>
+      {status === 'loading' && <CircularProgress />}
+      {status === 'succeeded' && storyForm}
       <ButtonGroup>
-        <LoadingButton
+        <Button
           variant="outlined"
           onClick={handleSubmit}
-          loading={status === 'loading'}
           color="success"
+          disabled={status !== 'succeeded'}
         >
           {story === undefined ? (
             <FormattedMessage defaultMessage="新增" id="addStory" />
           ) : (
             <FormattedMessage defaultMessage="更新" id="updateStory" />
           )}
-        </LoadingButton>
+        </Button>
         {story !== undefined && deleteButton}
         <Button onClick={handleClose} variant="outlined">
           <FormattedMessage defaultMessage="關閉" id="closeStoryForm" />
         </Button>
       </ButtonGroup>
-    </Box>
+    </Stack>
   )
 }
