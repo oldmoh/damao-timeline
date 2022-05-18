@@ -196,13 +196,6 @@ export default () => {
 
   return (
     <Stack spacing={2}>
-      <Typography variant="h5">
-        {tag === undefined ? (
-          <FormattedMessage defaultMessage="新增" id="insetStoryFormTitle" />
-        ) : (
-          <FormattedMessage defaultMessage="更新" id="updateStoryFormTitle" />
-        )}
-      </Typography>
       {status === 'loading' && <CircularProgress />}
       {status !== 'loading' && tagForm}
       <ButtonGroup>
