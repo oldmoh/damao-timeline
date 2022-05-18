@@ -1,4 +1,7 @@
+import React from 'react'
 import { useRoutes } from 'react-router-dom'
+import EventIcon from '@mui/icons-material/Event'
+import BookmarkIcon from '@mui/icons-material/Bookmark'
 
 import Timeline from '../features/timeline/Timeline'
 import StoryForm from '../features/timeline/StoryForm'
@@ -35,3 +38,14 @@ export default () => {
   ])
   return routes
 }
+
+export type NavLink = {
+  to: string
+  name: string
+  icon?: React.ReactNode
+}
+
+export const navLinks: NavLink[] = [
+  { to: '/', name: 'Timeline', icon: <EventIcon /> },
+  { to: '/tags', name: 'Tags', icon: <BookmarkIcon /> },
+]

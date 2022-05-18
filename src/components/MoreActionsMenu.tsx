@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 import { IconButton, Menu, MenuItem } from '@mui/material'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
+import SettingsIcon from '@mui/icons-material/Settings'
 
 export const MoreActionsMenu = () => {
   const [anchorElement, setAnchorElement] = useState<null | HTMLElement>(null)
@@ -23,7 +23,7 @@ export const MoreActionsMenu = () => {
         aria-haspopup="true"
         aria-expanded={isOpened ? 'true' : undefined}
       >
-        <MoreVertIcon />
+        <SettingsIcon />
       </IconButton>
       <Menu
         id="more-actions-menu"

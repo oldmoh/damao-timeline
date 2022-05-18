@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useMatch } from 'react-router-dom'
 import { FormattedMessage } from 'react-intl'
 import {
   AppBar,
@@ -15,38 +15,32 @@ import {
   CssBaseline,
 } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
-import EventIcon from '@mui/icons-material/Event'
-import BookmarkIcon from '@mui/icons-material/Bookmark'
 
 import './App.scss'
 import { MoreActionsMenu } from './components/MoreActionsMenu'
-import Routes from './app/Routes'
+import Routes, { navLinks } from './app/Routes'
+import ListNavItem from './components/ListNavItem'
 
 const drawerWidth = 300
 
 function App() {
   const [isDrawerOpened, setIsDrawerOpened] = useState(false)
+  const locatoin = useLocation()
+  const currentPathName = navLinks.filter(
+    (link) => link.to === locatoin.pathname
+  )[0].name
 
   const drawer = (
     <>
       <Toolbar />
       <List>
-        <ListItem component={Link} to="/" color="inherit">
-          <ListItemButton>
-            <ListItemIcon>
-              <EventIcon />
-            </ListItemIcon>
-            Timeline
-          </ListItemButton>
-        </ListItem>
-        <ListItem component={Link} to="/tags" color="inherit">
-          <ListItemButton>
-            <ListItemIcon>
-              <BookmarkIcon />
-            </ListItemIcon>
-            Tag
-          </ListItemButton>
-        </ListItem>
+        {navLinks.map((link) =>
+          link.icon ? (
+            <ListNavItem to={link.to} linkName={link.name} icon={link.icon} />
+          ) : (
+            <ListNavItem to={link.to} linkName={link.name} />
+          )
+        )}
       </List>
     </>
   )
@@ -72,7 +66,7 @@ function App() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            <FormattedMessage defaultMessage="時間軸" id="AppBar" />
+            <FormattedMessage defaultMessage={currentPathName} id="AppBar" />
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <MoreActionsMenu />
