@@ -1,9 +1,8 @@
 import React, { useEffect, useReducer, useRef } from 'react'
-import { useParams, Params, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import {
   Button,
   Checkbox,
-  Box,
   FormControlLabel,
   FormGroup,
   Stack,
@@ -11,22 +10,18 @@ import {
   Typography,
   ButtonGroup,
   CircularProgress,
-  Snackbar,
-  Alert,
 } from '@mui/material'
 import { DateTimePicker, LoadingButton, LocalizationProvider } from '@mui/lab'
 import DateAdapter from '@mui/lab/AdapterMoment'
 import { FormattedMessage } from 'react-intl'
 import { ColorResult } from 'react-color'
 
+import { IStory } from '../../app/Timeline'
 import {
   insertStory,
-  IStory,
   updateStory,
-  selectById,
   deleteStory,
-  getTimelineStatus,
-  getErrorMessage,
+  fetchStoryById,
 } from './timelineSlice'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { selectAll } from '../tag/tagSlice'
@@ -39,7 +34,7 @@ interface IFormState {
   isDetailInvalid: boolean
   isColorInvalid: boolean
   story: IStory
-  showErrorSnackbar: boolean
+  status: 'loading' | 'ready' | 'submitting' | 'deleting'
 }
 
 type Action =
@@ -79,7 +74,7 @@ const initailState: IFormState = {
     tagIds: [],
     isArchived: false,
   },
-  showErrorSnackbar: false,
+  status: 'loading',
 }
 
 /**
@@ -94,47 +89,44 @@ const updateFormState = (payload: { [index: string]: any }): Action => {
 export default () => {
   const appDispatch = useAppDispatch()
   const navigate = useNavigate()
-  const parameters: Params<string> = useParams()
-  const storyId: number = parseInt(parameters.storyId ?? '0')
-  const status = useAppSelector(getTimelineStatus)
-  const errorMessage = useAppSelector(getErrorMessage)
-  const story = useAppSelector((state) => selectById(state, storyId))
   const tags = useAppSelector(selectAll)
+  const parameters = useParams()
+
+  const hasStoryId = parameters.storyId ? true : false
 
   const [state, dispatch] = useReducer(reducer, initailState)
   const formElement = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
-    if (story === undefined) {
-      dispatch(updateFormState(initailState))
-    } else {
-      dispatch(updateFormState({ ...initailState, story: { ...story } }))
+    if (state.status !== 'loading') return
+    const fetchStory = async () => {
+      try {
+        const storyId = parseInt(parameters.storyId ?? '0')
+        const story = await appDispatch(fetchStoryById(storyId)).unwrap()
+        if (story) updateFormStory(story)
+      } catch (error) {
+        console.log(error)
+      }
+      dispatch(updateFormState({ status: 'ready' }))
     }
-  }, [story])
+    fetchStory()
+  }, [state.status, parameters])
 
-  useEffect(() => {
-    switch (status) {
-      case 'inserted':
-      case 'updated':
-      case 'deleted':
-        navigate('/')
-        break
-      case 'failed':
-        dispatch(updateFormState({ showErrorSnackbar: true }))
-        break
-      default:
-        break
-    }
-  }, [status])
-
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (formElement.current === null || !formElement.current.checkValidity())
       return
 
-    if (story === undefined) {
-      appDispatch(insertStory(state.story))
-    } else {
-      appDispatch(updateStory(state.story))
+    try {
+      dispatch(updateFormState({ status: 'submitting' }))
+      if (parameters.storyId) {
+        await appDispatch(updateStory(state.story))
+      } else {
+        await appDispatch(insertStory(state.story))
+      }
+      navigate('/')
+    } catch (error) {
+      dispatch(updateFormState({ status: 'ready' }))
+      console.log(error)
     }
   }
 
@@ -142,46 +134,57 @@ export default () => {
     navigate('/')
   }
 
-  const handleDelete = () => {
-    appDispatch(deleteStory(story!))
+  const handleDelete = async () => {
+    try {
+      dispatch(updateFormState({ status: 'deleting' }))
+      appDispatch(deleteStory(state.story!))
+      navigate('/')
+    } catch (error) {
+      dispatch(updateFormState({ status: 'ready' }))
+    }
   }
 
   const updateFormStory = (payload: { [index: string]: any }) =>
     dispatch({ type: 'updateStory', payload })
 
-  const tagCheckboxes = tags.map((tag) => (
-    <FormControlLabel
-      key={`Tag-${tag.id}`}
-      control={<Checkbox />}
-      checked={state.story.tagIds.includes(tag.id === undefined ? 0 : tag.id)}
-      label={
-        <Stack direction="row">
-          <LocalOffer sx={{ color: tag.color }} />
-          {tag.name}
-        </Stack>
-      }
-      value={tag.id}
-      onChange={({ target }) => {
-        const checkbox = target as HTMLInputElement
-        if (checkbox.checked)
-          updateFormStory({ tagIds: [...state.story.tagIds, tag.id] })
-        else
-          updateFormStory({
-            tagIds: state.story.tagIds.filter((id: number) => id !== tag.id),
-          })
-      }}
-    />
-  ))
+  const tagCheckboxes = tags.map((tag) => {
+    return (
+      <FormControlLabel
+        key={`Tag-${tag.id}`}
+        control={
+          <Checkbox
+            checked={state.story.tagIds.includes(tag.id!)}
+            value={tag.id}
+            onChange={({ target }) => {
+              const checkbox = target as HTMLInputElement
+              if (checkbox.checked)
+                updateFormStory({ tagIds: [...state.story.tagIds, tag.id] })
+              else
+                updateFormStory({
+                  tagIds: state.story.tagIds.filter(
+                    (id: number) => id !== tag.id
+                  ),
+                })
+            }}
+          />
+        }
+        label={
+          <Stack direction="row">
+            <LocalOffer sx={{ color: tag.color }} />
+            {tag.name}
+          </Stack>
+        }
+      />
+    )
+  })
 
   const deleteButton = (
     <LoadingButton
       onClick={handleDelete}
       color="error"
       variant="outlined"
-      disabled={
-        status === 'loading' || status === 'inserting' || status === 'updating'
-      }
-      loading={status === 'deleting'}
+      disabled={state.status === 'submitting'}
+      loading={state.status === 'submitting'}
     >
       <FormattedMessage defaultMessage="刪除" id="deleteStory" />
     </LoadingButton>
@@ -254,44 +257,32 @@ export default () => {
   return (
     <Stack spacing={2}>
       <Typography variant="h5">
-        {story === undefined ? (
+        {hasStoryId ? (
           <FormattedMessage defaultMessage="新增" id="insetStoryFormTitle" />
         ) : (
           <FormattedMessage defaultMessage="更新" id="updateStoryFormTitle" />
         )}
       </Typography>
-      {status === 'loading' && <CircularProgress />}
-      {status !== 'loading' && storyForm}
+      {state.status === 'loading' ? <CircularProgress /> : storyForm}
       <ButtonGroup>
         <LoadingButton
           variant="outlined"
           onClick={handleSubmit}
           color="success"
-          disabled={status === 'loading' || status === 'deleting'}
-          loading={status === 'inserting' || status === 'updating'}
+          disabled={state.status === 'deleting'}
+          loading={state.status === 'deleting'}
         >
-          {story === undefined ? (
-            <FormattedMessage defaultMessage="新增" id="addStory" />
-          ) : (
+          {hasStoryId ? (
             <FormattedMessage defaultMessage="更新" id="updateStory" />
+          ) : (
+            <FormattedMessage defaultMessage="新增" id="addStory" />
           )}
         </LoadingButton>
-        {story !== undefined && deleteButton}
+        {hasStoryId && deleteButton}
         <Button onClick={handleClose} variant="outlined">
           <FormattedMessage defaultMessage="關閉" id="closeStoryForm" />
         </Button>
       </ButtonGroup>
-      <Snackbar
-        autoHideDuration={3000}
-        open={state.showErrorSnackbar}
-        onClose={() => {
-          dispatch(updateFormState({ showErrorSnackbar: false }))
-        }}
-      >
-        <Alert variant="outlined" severity="error">
-          {errorMessage}
-        </Alert>
-      </Snackbar>
     </Stack>
   )
 }

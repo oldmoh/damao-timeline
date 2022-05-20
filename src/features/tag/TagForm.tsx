@@ -1,28 +1,17 @@
 import { useEffect, useReducer, useRef } from 'react'
-import { useParams, Params, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import {
   Button,
-  Box,
   Stack,
   TextField,
-  Typography,
   ButtonGroup,
   CircularProgress,
-  Snackbar,
-  Alert,
 } from '@mui/material'
 import { FormattedMessage } from 'react-intl'
 
-import {
-  selectById,
-  insertTag,
-  ITag,
-  updateTag,
-  deleteTag,
-  getTagStatus,
-  getErrorMessage,
-} from './tagSlice'
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
+import { ITag } from '../../app/Timeline'
+import { insertTag, updateTag, deleteTag, fetchTagById } from './tagSlice'
+import { useAppDispatch } from '../../app/hooks'
 import ColorPicker from '../../components/ColorPicker'
 import { ColorResult } from 'react-color'
 import { LoadingButton } from '@mui/lab'
@@ -32,7 +21,7 @@ interface IFormState {
   isDescriptionInvalid: boolean
   isColorInvalid: boolean
   tag: ITag
-  showErrorSnackbar: boolean
+  status: 'loading' | 'ready' | 'submitting' | 'deleting'
 }
 
 type Action =
@@ -58,7 +47,7 @@ const initailState: IFormState = {
   isDescriptionInvalid: false,
   isColorInvalid: false,
   tag: { name: '', description: '', color: '' },
-  showErrorSnackbar: false,
+  status: 'loading',
 }
 
 /**
@@ -73,55 +62,42 @@ const updateFormState = (payload: { [index: string]: any }): Action => {
 export default () => {
   const appDispatch = useAppDispatch()
   const navigate = useNavigate()
-  const parameters: Params<string> = useParams()
-  const tagId: number = parseInt(parameters.tagId ?? '0')
-  const tag = useAppSelector((state) => selectById(state, tagId))
-  const status = useAppSelector(getTagStatus)
-  const errorMessage = useAppSelector(getErrorMessage)
+  const parameters = useParams()
 
+  const hasTagId = parameters.tagId ? true : false
   const [formState, dispatch] = useReducer(reducer, initailState)
-
   const formElement = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
-    if (tag === undefined) {
-      dispatch(updateFormState(initailState))
-    } else {
-      dispatch(
-        updateFormState({
-          ...initailState,
-          tag: { ...tag },
-        })
-      )
+    if (formState.status !== 'loading') return
+    const fetchTag = async () => {
+      try {
+        const tagId: number = parseInt(parameters.tagId ?? '0')
+        const tag = await appDispatch(fetchTagById(tagId)).unwrap()
+        if (tag) updateFormTag(tag)
+      } catch (error) {}
+      dispatch(updateFormState({ status: 'ready' }))
     }
-  }, [tag])
-
-  useEffect(() => {
-    switch (status) {
-      case 'inserted':
-      case 'updated':
-      case 'deleted':
-        navigate('/tags')
-        break
-      case 'failed':
-        dispatch(updateFormState({ showErrorSnackbar: true }))
-        break
-      default:
-        break
-    }
-  }, [status])
+    fetchTag()
+  }, [formState.status, parameters])
 
   const updateFormTag = (payload: { [index: string]: any }) =>
     dispatch({ type: 'updateTag', payload })
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (formElement.current === null || !formElement.current.checkValidity())
       return
 
-    if (tag === undefined) {
-      appDispatch(insertTag(formState.tag))
-    } else {
-      appDispatch(updateTag(formState.tag))
+    try {
+      dispatch(updateFormState({ status: 'submitting' }))
+      if (hasTagId) {
+        await appDispatch(updateTag(formState.tag))
+      } else {
+        await appDispatch(insertTag(formState.tag))
+      }
+      navigate('/tags')
+    } catch (error) {
+      dispatch(updateFormState({ status: 'ready' }))
     }
   }
 
@@ -129,8 +105,14 @@ export default () => {
     navigate('/tags')
   }
 
-  const handleDelete = () => {
-    appDispatch(deleteTag(tag!))
+  const handleDelete = async () => {
+    try {
+      dispatch(updateFormState({ status: 'deleting' }))
+      await appDispatch(deleteTag(formState.tag))
+      navigate('/tags')
+    } catch (error) {
+      dispatch(updateFormState({ status: 'ready' }))
+    }
   }
 
   const deleteButton = (
@@ -138,10 +120,8 @@ export default () => {
       onClick={handleDelete}
       variant="outlined"
       color="error"
-      disabled={
-        status === 'loading' || status === 'inserting' || status === 'updating'
-      }
-      loading={status === 'deleting'}
+      disabled={formState.status === 'submitting'}
+      loading={formState.status === 'deleting'}
     >
       <FormattedMessage defaultMessage="刪除" id="deleteTag" />
     </LoadingButton>
@@ -165,8 +145,8 @@ export default () => {
           variant="outlined"
           label={<FormattedMessage defaultMessage="標籤名稱" id="tagName" />}
           required
-          value={formState.tag.name}
           error={formState.isNameInvalid}
+          value={formState.tag.name}
           onChange={({ target }) => updateFormTag({ name: target.value })}
           onInvalid={() => dispatch(updateFormState({ isNameInvalid: true }))}
         />
@@ -176,8 +156,8 @@ export default () => {
             <FormattedMessage defaultMessage="關於標籤" id="tagDescription" />
           }
           multiline
-          value={formState.tag.description}
           error={formState.isDescriptionInvalid}
+          value={formState.tag.description}
           onChange={({ target }) =>
             updateFormTag({ description: target.value })
           }
@@ -196,37 +176,25 @@ export default () => {
 
   return (
     <Stack spacing={2}>
-      {status === 'loading' && <CircularProgress />}
-      {status !== 'loading' && tagForm}
+      {formState.status === 'loading' ? <CircularProgress /> : tagForm}
       <ButtonGroup>
         <LoadingButton
           onClick={handleSubmit}
-          disabled={status === 'loading' || status === 'deleting'}
-          loading={status === 'inserting' || status === 'updating'}
+          disabled={formState.status === 'deleting'}
+          loading={formState.status === 'submitting'}
           variant="outlined"
         >
-          {tag === undefined ? (
-            <FormattedMessage defaultMessage="新增" id="addTag" />
-          ) : (
+          {hasTagId ? (
             <FormattedMessage defaultMessage="更新" id="updateTag" />
+          ) : (
+            <FormattedMessage defaultMessage="新增" id="addTag" />
           )}
         </LoadingButton>
-        {tag !== undefined && deleteButton}
+        {hasTagId && deleteButton}
         <Button onClick={handleClose}>
           <FormattedMessage defaultMessage="關閉" id="closeTagForm" />
         </Button>
       </ButtonGroup>
-      <Snackbar
-        autoHideDuration={3000}
-        open={formState.showErrorSnackbar}
-        onClose={() => {
-          dispatch(updateFormState({ showErrorSnackbar: false }))
-        }}
-      >
-        <Alert variant="outlined" severity="error">
-          {errorMessage}
-        </Alert>
-      </Snackbar>
     </Stack>
   )
 }

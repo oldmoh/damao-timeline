@@ -1,6 +1,5 @@
-import Dexie from 'dexie'
-import { ITag } from '../features/tag/tagSlice'
-import { IStory } from '../features/timeline/timelineSlice'
+import Dexie, { Transaction } from 'dexie'
+import { IStory, ITag } from './Timeline'
 
 export class AppDatabase extends Dexie {
   stories!: Dexie.Table<IStory, number>
@@ -9,6 +8,9 @@ export class AppDatabase extends Dexie {
   constructor() {
     super('timeline')
     let db = this
+
+    // provide sample data when create db
+    db.on('populate', db.populate)
 
     // add migration from here
     db.version(1).stores({
@@ -37,6 +39,12 @@ export class AppDatabase extends Dexie {
         })
     })
   }
+
+  /**
+   * Provide sample data
+   * @param tx transaction
+   */
+  populate(tx: Transaction) {}
 }
 
 export const db = new AppDatabase()

@@ -8,30 +8,10 @@ import {
 } from '@reduxjs/toolkit'
 import { RootState } from '../../app/store'
 import { db } from '../../app/db'
-import { EntityBase } from '../../common/EntityBase'
-
-export interface IStory extends EntityBase {
-  id?: number
-  title: string
-  happenedAt: number
-  detail: string
-  tagIds: number[]
-  color: string
-  isArchived: boolean
-}
+import { IStory } from '../../app/Timeline'
 
 interface TimlineState extends EntityState<IStory> {
-  status:
-    | 'idle'
-    | 'loading'
-    | 'succeeded'
-    | 'failed'
-    | 'inserting'
-    | 'inserted'
-    | 'updating'
-    | 'updated'
-    | 'deleting'
-    | 'deleted'
+  status: 'idle' | 'loading' | 'succeeded' | 'failed'
   error: string | null
 }
 
@@ -59,6 +39,19 @@ export const selectAllStories = createAsyncThunk(
       return thunkAPI.rejectWithValue(error)
     }
     return stories
+  }
+)
+
+export const fetchStoryById = createAsyncThunk(
+  'timeline/fetchById',
+  async (id: number, thunkAPI) => {
+    try {
+      return await db.transaction('r', db.stories, async () =>
+        db.stories.get(id)
+      )
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error)
+    }
   }
 )
 
@@ -151,10 +144,6 @@ const timelineSlice = createSlice({
     setError: (state, action: PayloadAction<string>) => {
       state.error = action.payload
     },
-    toggleLoading: (state, action: PayloadAction<boolean>) => {
-      if (action.payload) state.status = 'loading'
-      else state.status = 'idle'
-    },
   },
   extraReducers: (builder) => {
     builder
@@ -167,29 +156,27 @@ const timelineSlice = createSlice({
       })
       .addCase(selectAllStories.rejected, (state, action) => {
         state.status = 'failed'
-        state.error = action.payload as string
       })
       .addCase(insertStory.pending, (state, action) => {
-        state.status = 'inserting'
+        state.status = 'loading'
       })
       .addCase(
         insertStory.fulfilled,
         (state, action: PayloadAction<IStory>) => {
-          state.status = 'inserted'
+          state.status = 'succeeded'
           storyAdapter.addOne(state, action.payload)
         }
       )
       .addCase(insertStory.rejected, (state, action) => {
         state.status = 'failed'
-        state.error = action.payload as string
       })
       .addCase(updateStory.pending, (state, action) => {
-        state.status = 'updating'
+        state.status = 'loading'
       })
       .addCase(
         updateStory.fulfilled,
         (state, action: PayloadAction<IStory>) => {
-          state.status = 'updated'
+          state.status = 'succeeded'
           const payload = action.payload
           const updatedStory: Update<IStory> = {
             id: payload.id!,
@@ -201,28 +188,34 @@ const timelineSlice = createSlice({
       .addCase(updateStory.rejected, (state, action) => {
         state.status = 'failed'
         console.log(action.payload)
-        state.error = action.payload as string
       })
       .addCase(deleteStory.pending, (state, action) => {
-        state.status = 'deleting'
+        state.status = 'loading'
       })
       .addCase(
         deleteStory.fulfilled,
         (state, action: PayloadAction<IStory>) => {
-          state.status = 'deleted'
+          state.status = 'succeeded'
           storyAdapter.removeOne(state, action.payload.id!)
         }
       )
       .addCase(deleteStory.rejected, (state, action) => {
         state.status = 'failed'
-        state.error = action.payload as string
+      })
+      .addCase(fetchStoryById.pending, (state, action) => {
+        state.status = 'loading'
+      })
+      .addCase(fetchStoryById.fulfilled, (state, action) => {
+        state.status = 'succeeded'
+        if (action.payload) storyAdapter.upsertOne(state, action.payload)
+      })
+      .addCase(fetchStoryById.rejected, (state, action) => {
+        state.status = 'failed'
       })
   },
 })
 
 export default timelineSlice.reducer
-
-export const { toggleLoading } = timelineSlice.actions
 
 export const { selectById, selectAll } = storyAdapter.getSelectors<RootState>(
   (state) => state.timeline

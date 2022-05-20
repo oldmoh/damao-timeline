@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Link, useLocation, useMatch } from 'react-router-dom'
 import { FormattedMessage } from 'react-intl'
 import {
   AppBar,
@@ -9,10 +8,8 @@ import {
   Typography,
   Box,
   List,
-  ListItem,
-  ListItemIcon,
-  ListItemButton,
   CssBaseline,
+  CircularProgress,
 } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
 
@@ -20,27 +17,26 @@ import './App.scss'
 import { MoreActionsMenu } from './components/MoreActionsMenu'
 import Routes, { navLinks } from './app/Routes'
 import ListNavItem from './components/ListNavItem'
+import { useInitializer } from './app/hooks'
 
 const drawerWidth = 300
 
 function App() {
   const [isDrawerOpened, setIsDrawerOpened] = useState(false)
-  const locatoin = useLocation()
-  const currentPathName = navLinks.filter(
-    (link) => link.to === locatoin.pathname
-  )[0].name
+  const isInitialized = useInitializer()
 
   const drawer = (
     <>
       <Toolbar />
       <List>
-        {navLinks.map((link) =>
-          link.icon ? (
-            <ListNavItem to={link.to} linkName={link.name} icon={link.icon} />
-          ) : (
-            <ListNavItem to={link.to} linkName={link.name} />
-          )
-        )}
+        {navLinks.map((link) => (
+          <ListNavItem
+            key={`nav-${link.to}`}
+            to={link.to}
+            linkName={link.name}
+            icon={link.icon}
+          />
+        ))}
       </List>
     </>
   )
@@ -66,7 +62,7 @@ function App() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            <FormattedMessage defaultMessage={currentPathName} id="AppBar" />
+            <FormattedMessage defaultMessage={'Timeline'} id="appBar" />
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <MoreActionsMenu />
@@ -114,7 +110,8 @@ function App() {
         }}
       >
         <Toolbar />
-        <Routes />
+        {!isInitialized && <CircularProgress />}
+        {isInitialized && <Routes />}
       </Box>
     </Box>
   )
