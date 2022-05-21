@@ -5,22 +5,15 @@ import App from './App'
 import { store } from './app/store'
 import { Provider } from 'react-redux'
 import * as serviceWorker from './serviceWorker'
-import { IntlProvider } from 'react-intl'
-import * as langMessages from './compiled-lang/en.json'
+
 import { BrowserRouter } from 'react-router-dom'
 
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <IntlProvider
-        messages={langMessages}
-        locale="zh-TW"
-        defaultLocale="zh-TW"
-      >
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </IntlProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </Provider>
   </React.StrictMode>,
   document.getElementById('root')

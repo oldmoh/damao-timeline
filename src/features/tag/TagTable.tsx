@@ -15,6 +15,7 @@ import { Box } from '@mui/system'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { getTagStatus, selectAll, selectAllTags } from './tagSlice'
 import { LocalOffer } from '@mui/icons-material'
+import { FormattedMessage } from 'react-intl'
 
 export default () => {
   const dispatch = useAppDispatch()
@@ -44,7 +45,7 @@ export default () => {
     <Stack spacing={4}>
       <Box>
         <Button onClick={() => navigate('/tags/create')} variant="contained">
-          新增
+          <FormattedMessage id="button.add" defaultMessage={'Add'} />
         </Button>
       </Box>
       {status === 'loading' && <CircularProgress />}

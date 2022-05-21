@@ -36,8 +36,10 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lang:extract": "formatjs extract \"src/**/*.{js,jsx,ts,tsx}\" --ignore \"src/**/*.d.ts\" --id-interpolation-pattern [contenthash:5] --out-file lang/zh-TW.json",
-    "lang:compile": "formatjs compile-folder --ast lang src/compiled-lang"
+    "lang:extract:zhtw": "formatjs extract \"src/**/*.{js,jsx,ts,tsx}\" --ignore \"src/**/*.d.ts\" --id-interpolation-pattern [contenthash:5] --out-file lang/zh-TW.json",
+    "lang:extract:en": "formatjs extract \"src/**/*.{js,jsx,ts,tsx}\" --ignore \"src/**/*.d.ts\" --id-interpolation-pattern [contenthash:5] --out-file lang/en.json",
+    "lang:extract:jp": "formatjs extract \"src/**/*.{js,jsx,ts,tsx}\" --ignore \"src/**/*.d.ts\" --id-interpolation-pattern [contenthash:5] --out-file lang/jp.json",
+    "lang:compile": "formatjs compile-folder --ast lang public/lang"
   },
   "eslintConfig": {
     "extends": "react-app"

@@ -1,5 +1,83 @@
 {
-  "101a6": {
-    "defaultMessage": "hahaha"
+  "404.message": {
+    "defaultMessage": "Oops! Page Not found."
+  },
+  "app.title": {
+    "defaultMessage": "Timeline"
+  },
+  "button.add": {
+    "defaultMessage": "Add"
+  },
+  "button.back": {
+    "defaultMessage": "Back"
+  },
+  "button.delete": {
+    "defaultMessage": "Delete"
+  },
+  "button.edit": {
+    "defaultMessage": "Edit"
+  },
+  "button.settings": {
+    "defaultMessage": "Settings"
+  },
+  "button.update": {
+    "defaultMessage": "Update"
+  },
+  "nav.tag": {
+    "defaultMessage": "Tag"
+  },
+  "nav.timeline": {
+    "defaultMessage": "Timeline"
+  },
+  "settings.lang": {
+    "defaultMessage": "Language"
+  },
+  "settings.lang.cn": {
+    "defaultMessage": "Chinese"
+  },
+  "settings.lang.en": {
+    "defaultMessage": "English"
+  },
+  "settings.lang.jp": {
+    "defaultMessage": "Japanese"
+  },
+  "settings.title": {
+    "defaultMessage": "Settings"
+  },
+  "story.color": {
+    "defaultMessage": "Color"
+  },
+  "story.detail": {
+    "defaultMessage": "Detail"
+  },
+  "story.form.title.add": {
+    "defaultMessage": "Add"
+  },
+  "story.form.title.edit": {
+    "defaultMessage": "Edit"
+  },
+  "story.happenedAt": {
+    "defaultMessage": "Happened at"
+  },
+  "story.tag": {
+    "defaultMessage": "Tag"
+  },
+  "story.title": {
+    "defaultMessage": "Title"
+  },
+  "storyColor": {
+    "defaultMessage": "Tag Color"
+  },
+  "tag.description": {
+    "defaultMessage": "Description"
+  },
+  "tag.name": {
+    "defaultMessage": "Name"
+  },
+  "tags.title": {
+    "defaultMessage": "Tag"
+  },
+  "timeline.title": {
+    "defaultMessage": "Timeline"
   }
 }

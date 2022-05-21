@@ -19,7 +19,7 @@ import {
   TimelineSeparator,
 } from '@mui/lab'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { FormattedMessage } from 'react-intl'
+import { FormattedDate, FormattedMessage } from 'react-intl'
 
 import { useAppSelector } from '../../app/hooks'
 import { selectById } from './timelineSlice'
@@ -47,7 +47,12 @@ export const StroyItem = ({ storyId }: { storyId: number }) => {
   return (
     <TimelineItem>
       <TimelineOppositeContent color="text.secondary">
-        <p>{new Date(story.happenedAt).toISOString()}</p>
+        <FormattedDate
+          value={new Date(story.happenedAt)}
+          year="numeric"
+          month="long"
+          day="2-digit"
+        />
       </TimelineOppositeContent>
       <TimelineSeparator>
         <TimelineConnector />
@@ -83,7 +88,7 @@ export const StroyItem = ({ storyId }: { storyId: number }) => {
               component={RouterLink}
               to={`/stories/${story.id}`}
             >
-              <FormattedMessage defaultMessage="更新" id="updateStory" />
+              <FormattedMessage defaultMessage="Edit" id="button.edit" />
             </Button>
           </AccordionActions>
         </Accordion>

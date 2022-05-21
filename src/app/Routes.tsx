@@ -10,6 +10,8 @@ import TagForm from '../features/tag/TagForm'
 import NotFoundPage from '../components/NotFoundPage'
 import Stories from '../features/timeline/Stories'
 import TagTable from '../features/tag/TagTable'
+import { FormattedMessage } from 'react-intl'
+import Settings from '../features/settings/Settings'
 
 export default () => {
   const routes = useRoutes([
@@ -32,6 +34,10 @@ export default () => {
       ],
     },
     {
+      path: '/settings',
+      element: <Settings />,
+    },
+    {
       path: '*',
       element: <NotFoundPage />,
     },
@@ -41,11 +47,19 @@ export default () => {
 
 export type NavLink = {
   to: string
-  name: string
+  name: string | React.ReactNode
   icon?: React.ReactNode
 }
 
 export const navLinks: NavLink[] = [
-  { to: '/', name: 'Timeline', icon: <EventIcon /> },
-  { to: '/tags', name: 'Tags', icon: <BookmarkIcon /> },
+  {
+    to: '/',
+    name: <FormattedMessage id="nav.timeline" defaultMessage={'Timeline'} />,
+    icon: <EventIcon />,
+  },
+  {
+    to: '/tags',
+    name: <FormattedMessage id="nav.tag" defaultMessage={'Tag'} />,
+    icon: <BookmarkIcon />,
+  },
 ]

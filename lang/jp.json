@@ -1,0 +1,83 @@
+{
+  "404.message": {
+    "defaultMessage": "Oops! Page Not found."
+  },
+  "app.title": {
+    "defaultMessage": "タイムライン"
+  },
+  "button.add": {
+    "defaultMessage": "追加"
+  },
+  "button.back": {
+    "defaultMessage": "戻る"
+  },
+  "button.delete": {
+    "defaultMessage": "削除"
+  },
+  "button.edit": {
+    "defaultMessage": "修正"
+  },
+  "button.settings": {
+    "defaultMessage": "設定"
+  },
+  "button.update": {
+    "defaultMessage": "更新"
+  },
+  "nav.tag": {
+    "defaultMessage": "タグ"
+  },
+  "nav.timeline": {
+    "defaultMessage": "タイムライン"
+  },
+  "settings.lang": {
+    "defaultMessage": "表示言語"
+  },
+  "settings.lang.cn": {
+    "defaultMessage": "中国語"
+  },
+  "settings.lang.en": {
+    "defaultMessage": "英語"
+  },
+  "settings.lang.jp": {
+    "defaultMessage": "日本語"
+  },
+  "settings.title": {
+    "defaultMessage": "設定"
+  },
+  "story.color": {
+    "defaultMessage": "色"
+  },
+  "story.detail": {
+    "defaultMessage": "詳細"
+  },
+  "story.form.title.add": {
+    "defaultMessage": "追加"
+  },
+  "story.form.title.edit": {
+    "defaultMessage": "修正"
+  },
+  "story.happenedAt": {
+    "defaultMessage": "発生時間"
+  },
+  "story.tag": {
+    "defaultMessage": "タグ"
+  },
+  "story.title": {
+    "defaultMessage": "タイトル"
+  },
+  "storyColor": {
+    "defaultMessage": "タグ色"
+  },
+  "tag.description": {
+    "defaultMessage": "タグについて"
+  },
+  "tag.name": {
+    "defaultMessage": "タグ名"
+  },
+  "tags.title": {
+    "defaultMessage": "タグ"
+  },
+  "timeline.title": {
+    "defaultMessage": "タイムライン"
+  }
+}

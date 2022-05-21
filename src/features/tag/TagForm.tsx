@@ -8,13 +8,13 @@ import {
   CircularProgress,
 } from '@mui/material'
 import { FormattedMessage } from 'react-intl'
+import { LoadingButton } from '@mui/lab'
+import { ColorResult } from 'react-color'
 
 import { ITag } from '../../app/Timeline'
 import { insertTag, updateTag, deleteTag, fetchTagById } from './tagSlice'
 import { useAppDispatch } from '../../app/hooks'
 import ColorPicker from '../../components/ColorPicker'
-import { ColorResult } from 'react-color'
-import { LoadingButton } from '@mui/lab'
 
 interface IFormState {
   isNameInvalid: boolean
@@ -123,7 +123,7 @@ export default () => {
       disabled={formState.status === 'submitting'}
       loading={formState.status === 'deleting'}
     >
-      <FormattedMessage defaultMessage="刪除" id="deleteTag" />
+      <FormattedMessage defaultMessage="Delete" id="button.delete" />
     </LoadingButton>
   )
 
@@ -143,7 +143,7 @@ export default () => {
       <Stack spacing={3} sx={{ marginTop: 3, marginBottom: 3 }}>
         <TextField
           variant="outlined"
-          label={<FormattedMessage defaultMessage="標籤名稱" id="tagName" />}
+          label={<FormattedMessage defaultMessage="Name" id="tag.name" />}
           required
           error={formState.isNameInvalid}
           value={formState.tag.name}
@@ -153,7 +153,10 @@ export default () => {
         <TextField
           variant="outlined"
           label={
-            <FormattedMessage defaultMessage="關於標籤" id="tagDescription" />
+            <FormattedMessage
+              defaultMessage="Description"
+              id="tag.description"
+            />
           }
           multiline
           error={formState.isDescriptionInvalid}
@@ -168,7 +171,9 @@ export default () => {
         <ColorPicker
           color={formState.tag.color}
           onChangeComplete={handleColorSelected}
-          label="標籤顏色"
+          label={
+            <FormattedMessage defaultMessage={'Tag Color'} id="storyColor" />
+          }
         />
       </Stack>
     </form>
@@ -185,14 +190,14 @@ export default () => {
           variant="outlined"
         >
           {hasTagId ? (
-            <FormattedMessage defaultMessage="更新" id="updateTag" />
+            <FormattedMessage defaultMessage="Update" id="button.update" />
           ) : (
-            <FormattedMessage defaultMessage="新增" id="addTag" />
+            <FormattedMessage defaultMessage="Add" id="button.add" />
           )}
         </LoadingButton>
         {hasTagId && deleteButton}
         <Button onClick={handleClose}>
-          <FormattedMessage defaultMessage="關閉" id="closeTagForm" />
+          <FormattedMessage defaultMessage="Back" id="button.back" />
         </Button>
       </ButtonGroup>
     </Stack>

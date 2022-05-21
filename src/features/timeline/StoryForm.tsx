@@ -186,7 +186,7 @@ export default () => {
       disabled={state.status === 'submitting'}
       loading={state.status === 'submitting'}
     >
-      <FormattedMessage defaultMessage="刪除" id="deleteStory" />
+      <FormattedMessage defaultMessage="Delete" id="button.delete" />
     </LoadingButton>
   )
 
@@ -206,7 +206,7 @@ export default () => {
       <Stack spacing={3} sx={{ marginTop: 3, marginBottom: 3 }}>
         <TextField
           variant="outlined"
-          label={<FormattedMessage defaultMessage="事件名稱" id="storyTitle" />}
+          label={<FormattedMessage defaultMessage="Title" id="story.title" />}
           required
           value={state.story.title}
           error={state.isTitleInvalid}
@@ -217,8 +217,8 @@ export default () => {
           <DateTimePicker
             label={
               <FormattedMessage
-                defaultMessage="發生時間"
-                id="storyHappenedAt"
+                defaultMessage="Happened at"
+                id="story.happenedAt"
               />
             }
             value={new Date(state.story.happenedAt)}
@@ -232,7 +232,7 @@ export default () => {
         </LocalizationProvider>
         <TextField
           variant="outlined"
-          label={<FormattedMessage defaultMessage="詳細" id="storyDetail" />}
+          label={<FormattedMessage defaultMessage="Detail" id="story.detail" />}
           multiline
           value={state.story.detail}
           error={state.isDetailInvalid}
@@ -241,14 +241,14 @@ export default () => {
         />
         <FormGroup>
           <p>
-            <FormattedMessage defaultMessage="標籤" id="storyTags" />
+            <FormattedMessage defaultMessage="Tag" id="story.tag" />
           </p>
           {tagCheckboxes}
         </FormGroup>
         <ColorPicker
           color={state.story.color}
           onChangeComplete={handleColorSelected}
-          label="代表顏色"
+          label={<FormattedMessage id="story.color" defaultMessage={'Color'} />}
         />
       </Stack>
     </form>
@@ -258,9 +258,9 @@ export default () => {
     <Stack spacing={2}>
       <Typography variant="h5">
         {hasStoryId ? (
-          <FormattedMessage defaultMessage="新增" id="insetStoryFormTitle" />
+          <FormattedMessage defaultMessage="Add" id="story.form.title.add" />
         ) : (
-          <FormattedMessage defaultMessage="更新" id="updateStoryFormTitle" />
+          <FormattedMessage defaultMessage="Edit" id="story.form.title.edit" />
         )}
       </Typography>
       {state.status === 'loading' ? <CircularProgress /> : storyForm}
@@ -273,14 +273,14 @@ export default () => {
           loading={state.status === 'deleting'}
         >
           {hasStoryId ? (
-            <FormattedMessage defaultMessage="更新" id="updateStory" />
+            <FormattedMessage defaultMessage="Update" id="button.update" />
           ) : (
-            <FormattedMessage defaultMessage="新增" id="addStory" />
+            <FormattedMessage defaultMessage="Add" id="button.add" />
           )}
         </LoadingButton>
         {hasStoryId && deleteButton}
         <Button onClick={handleClose} variant="outlined">
-          <FormattedMessage defaultMessage="關閉" id="closeStoryForm" />
+          <FormattedMessage defaultMessage="Back" id="button.back" />
         </Button>
       </ButtonGroup>
     </Stack>

@@ -9,7 +9,7 @@ import {
 import { Link, useMatch } from 'react-router-dom'
 
 export default (props: {
-  linkName: string
+  linkName: string | React.ReactNode
   to: string
   icon?: React.ReactNode
 }) => {

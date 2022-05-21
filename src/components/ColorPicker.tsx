@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { Button, Box, Menu } from '@mui/material'
 import { BlockPicker, ColorChangeHandler } from 'react-color'
-import { FormattedMessage } from 'react-intl'
 import { LocalOffer } from '@mui/icons-material'
 
 export default (props: {
   color: string
   onChangeComplete: ColorChangeHandler
-  label?: string
+  label?: string | React.ReactNode
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
@@ -22,7 +21,7 @@ export default (props: {
     <Box>
       <Button variant="text" onClick={handleClick}>
         <LocalOffer sx={{ color: props.color }} />
-        <FormattedMessage defaultMessage={props.label} id="storyColor" />
+        {props.label}
       </Button>
       <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
         <BlockPicker

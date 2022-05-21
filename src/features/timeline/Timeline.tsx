@@ -31,11 +31,13 @@ export default () => {
 
   return (
     <Stack spacing={4}>
-      <Typography variant="h5">時間軸</Typography>
+      <Typography variant="h5">
+        <FormattedMessage id="timeline.title" defaultMessage={'Timeline'} />
+      </Typography>
       <Box>
         <ButtonGroup variant="contained">
           <Button onClick={() => navigate('/stories/create')}>
-            <FormattedMessage defaultMessage="新增" id="addStory" />
+            <FormattedMessage defaultMessage="Add" id="button.add" />
           </Button>
         </ButtonGroup>
       </Box>

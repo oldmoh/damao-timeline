@@ -1,32 +1,83 @@
 {
-  "AppBar": {
+  "404.message": {
+    "defaultMessage": "噢！找不到頁面。"
+  },
+  "app.title": {
     "defaultMessage": "時間軸"
   },
-  "addStory": {
+  "button.add": {
     "defaultMessage": "新增"
   },
-  "closeStoryForm": {
+  "button.back": {
     "defaultMessage": "關閉"
   },
-  "storyColor": {
+  "button.delete": {
+    "defaultMessage": "刪除"
+  },
+  "button.edit": {
+    "defaultMessage": "修改"
+  },
+  "button.settings": {
+    "defaultMessage": "設定"
+  },
+  "button.update": {
+    "defaultMessage": "更新"
+  },
+  "nav.tag": {
+    "defaultMessage": "標簽"
+  },
+  "nav.timeline": {
+    "defaultMessage": "時間軸"
+  },
+  "settings.lang": {
+    "defaultMessage": "顯示語言"
+  },
+  "settings.lang.cn": {
+    "defaultMessage": "中文"
+  },
+  "settings.lang.en": {
+    "defaultMessage": "英文"
+  },
+  "settings.lang.jp": {
+    "defaultMessage": "日文"
+  },
+  "settings.title": {
+    "defaultMessage": "設定"
+  },
+  "story.color": {
     "defaultMessage": "顏色"
   },
-  "storyDetail": {
-    "defaultMessage": "詳細"
+  "story.detail": {
+    "defaultMessage": "故事內容"
   },
-  "storyForm": {
-    "defaultMessage": "新增"
+  "story.form.title.add": {
+    "defaultMessage": "新增故事"
   },
-  "storyHappenedAt": {
-    "defaultMessage": "發生時間"
+  "story.form.title.edit": {
+    "defaultMessage": "更新故事"
   },
-  "storyTags": {
+  "story.happenedAt": {
+    "defaultMessage": "發生在"
+  },
+  "story.tag": {
     "defaultMessage": "標籤"
   },
-  "storyTitle": {
-    "defaultMessage": "事件名稱"
+  "story.title": {
+    "defaultMessage": "標題"
   },
-  "submitStoryForm": {
-    "defaultMessage": "新增"
+  "storyColor": {
+    "defaultMessage": "標籤顏色"
+  },
+  "tag.description": {
+    "defaultMessage": "標籤描述"
+  },
+  "tag.name": {
+    "defaultMessage": "標籤名"
+  },
+  "tags.title": {
+    "defaultMessage": "標籤"
+  },
+  "timeline.title": {
+    "defaultMessage": "時間軸"
   }
 }
