@@ -39,6 +39,9 @@ function App() {
             to={link.to}
             linkName={link.name}
             icon={link.icon}
+            onClick={() => {
+              setIsDrawerOpened(false)
+            }}
           />
         ))}
       </List>

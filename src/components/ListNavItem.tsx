@@ -12,6 +12,7 @@ export default (props: {
   linkName: string | React.ReactNode
   to: string
   icon?: React.ReactNode
+  onClick?: React.MouseEventHandler<HTMLDivElement>
 }) => {
   const { linkName, to, icon } = props
   const pathMatch = useMatch(to)
@@ -20,7 +21,7 @@ export default (props: {
 
   return (
     <ListItem to={to} component={Link}>
-      <ListItemButton>
+      <ListItemButton onClick={props.onClick}>
         <ListItemIcon>{icon}</ListItemIcon>
         <ListItemText primary={linkName} />
       </ListItemButton>

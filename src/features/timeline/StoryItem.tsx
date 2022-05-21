@@ -77,7 +77,11 @@ export const StroyItem = ({ storyId }: { storyId: number }) => {
             <Stack spacing={2}>
               <Typography color="text.secondary">{story.detail}</Typography>
               <Divider />
-              <Stack direction="row" spacing={1}>
+              <Stack
+                sx={{ direction: { xs: 'column', md: 'row' } }}
+                alignItems="flex-start"
+                spacing={1}
+              >
                 {storyTags}
               </Stack>
             </Stack>
