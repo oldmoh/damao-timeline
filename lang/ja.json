@@ -1,6 +1,6 @@
 {
   "404.message": {
-    "defaultMessage": "Oops! Page Not found."
+    "defaultMessage": "画面が存在しません。"
   },
   "app.title": {
     "defaultMessage": "タイムライン"
@@ -32,13 +32,13 @@
   "settings.lang": {
     "defaultMessage": "表示言語"
   },
-  "settings.lang.cn": {
-    "defaultMessage": "中国語"
+  "settings.lang.zh-TW": {
+    "defaultMessage": "中国語（台湾）"
   },
   "settings.lang.en": {
     "defaultMessage": "英語"
   },
-  "settings.lang.jp": {
+  "settings.lang.ja": {
     "defaultMessage": "日本語"
   },
   "settings.title": {

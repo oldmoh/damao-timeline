@@ -12,7 +12,7 @@ import {
 } from '@mui/material'
 import { Box } from '@mui/system'
 
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
+import { useAppDispatch, useAppSelector } from '../../common/hooks'
 import { getTagStatus, selectAll, selectAllTags } from './tagSlice'
 import { LocalOffer } from '@mui/icons-material'
 import { FormattedMessage } from 'react-intl'

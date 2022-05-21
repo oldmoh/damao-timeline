@@ -15,9 +15,9 @@ import MenuIcon from '@mui/icons-material/Menu'
 
 import './App.scss'
 import { MoreActionsMenu } from './components/MoreActionsMenu'
-import Routes, { navLinks } from './app/Routes'
+import Routes, { navLinks } from './routes/Routes'
 import ListNavItem from './components/ListNavItem'
-import { useAppSelector, useInitializer } from './app/hooks'
+import { useAppSelector, useI18n, useInitializer } from './common/hooks'
 import { IntlProvider } from 'react-intl'
 import { getLanguage } from './features/settings/settingsSlice'
 
@@ -27,26 +27,7 @@ function App() {
   const [isDrawerOpened, setIsDrawerOpened] = useState(false)
   const isInitialized = useInitializer()
   const locale = useAppSelector(getLanguage)
-  const [messages, setMessages] = useState<any>(undefined)
-
-  useEffect(() => {
-    const loadMessages = async () => {
-      switch (locale) {
-        case 'en':
-          setMessages(await import('./compiled-lang/en.json'))
-          break
-        case 'cn':
-          setMessages(await import('./compiled-lang/zh-TW.json'))
-          break
-        case 'jp':
-          setMessages(await import('./compiled-lang/jp.json'))
-          break
-        default:
-          setMessages(await import('./compiled-lang/en.json'))
-      }
-    }
-    loadMessages()
-  }, [locale])
+  const messages = useI18n()
 
   const drawer = (
     <>

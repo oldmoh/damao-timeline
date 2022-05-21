@@ -21,7 +21,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { FormattedDate, FormattedMessage } from 'react-intl'
 
-import { useAppSelector } from '../../app/hooks'
+import { useAppSelector } from '../../common/hooks'
 import { selectById } from './timelineSlice'
 import { selectAll } from '../tag/tagSlice'
 import { useState } from 'react'

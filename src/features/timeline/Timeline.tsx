@@ -10,7 +10,7 @@ import {
 } from '@mui/material'
 import { Timeline } from '@mui/lab'
 
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
+import { useAppDispatch, useAppSelector } from '../../common/hooks'
 import { selectAll, getTimelineStatus, selectAllStories } from './timelineSlice'
 import { FormattedMessage } from 'react-intl'
 import { StroyItem } from './StoryItem'

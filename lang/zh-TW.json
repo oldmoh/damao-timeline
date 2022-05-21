@@ -1,6 +1,6 @@
 {
   "404.message": {
-    "defaultMessage": "噢！找不到頁面。"
+    "defaultMessage": "噢！找不到畫面。"
   },
   "app.title": {
     "defaultMessage": "時間軸"
@@ -9,7 +9,7 @@
     "defaultMessage": "新增"
   },
   "button.back": {
-    "defaultMessage": "關閉"
+    "defaultMessage": "返回"
   },
   "button.delete": {
     "defaultMessage": "刪除"
@@ -24,7 +24,7 @@
     "defaultMessage": "更新"
   },
   "nav.tag": {
-    "defaultMessage": "標簽"
+    "defaultMessage": "標籤"
   },
   "nav.timeline": {
     "defaultMessage": "時間軸"
@@ -32,13 +32,13 @@
   "settings.lang": {
     "defaultMessage": "顯示語言"
   },
-  "settings.lang.cn": {
-    "defaultMessage": "中文"
+  "settings.lang.zh-TW": {
+    "defaultMessage": "中文（台灣）"
   },
   "settings.lang.en": {
     "defaultMessage": "英文"
   },
-  "settings.lang.jp": {
+  "settings.lang.ja": {
     "defaultMessage": "日文"
   },
   "settings.title": {
@@ -48,16 +48,16 @@
     "defaultMessage": "顏色"
   },
   "story.detail": {
-    "defaultMessage": "故事內容"
+    "defaultMessage": "關於"
   },
   "story.form.title.add": {
-    "defaultMessage": "新增故事"
+    "defaultMessage": "新增"
   },
   "story.form.title.edit": {
-    "defaultMessage": "更新故事"
+    "defaultMessage": "修改"
   },
   "story.happenedAt": {
-    "defaultMessage": "發生在"
+    "defaultMessage": "發生於"
   },
   "story.tag": {
     "defaultMessage": "標籤"
@@ -69,10 +69,10 @@
     "defaultMessage": "標籤顏色"
   },
   "tag.description": {
-    "defaultMessage": "標籤描述"
+    "defaultMessage": "關於標籤"
   },
   "tag.name": {
-    "defaultMessage": "標籤名"
+    "defaultMessage": "標籤名稱"
   },
   "tags.title": {
     "defaultMessage": "標籤"

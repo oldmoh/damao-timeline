@@ -16,14 +16,14 @@ import DateAdapter from '@mui/lab/AdapterMoment'
 import { FormattedMessage } from 'react-intl'
 import { ColorResult } from 'react-color'
 
-import { IStory } from '../../app/Timeline'
+import { IStory } from '../../app/types'
 import {
   insertStory,
   updateStory,
   deleteStory,
   fetchStoryById,
 } from './timelineSlice'
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
+import { useAppDispatch, useAppSelector } from '../../common/hooks'
 import { selectAll } from '../tag/tagSlice'
 import ColorPicker from '../../components/ColorPicker'
 import { LocalOffer } from '@mui/icons-material'

@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '../../app/store'
-
-export type Language = 'en' | 'cn' | 'jp'
+import { Language } from '../../app/types'
 
 interface SettingsState {
   lang: Language

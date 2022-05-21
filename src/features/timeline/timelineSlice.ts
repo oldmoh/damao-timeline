@@ -8,7 +8,7 @@ import {
 } from '@reduxjs/toolkit'
 import { RootState } from '../../app/store'
 import { db } from '../../app/db'
-import { IStory } from '../../app/Timeline'
+import { IStory } from '../../app/types'
 
 interface TimlineState extends EntityState<IStory> {
   status: 'idle' | 'loading' | 'succeeded' | 'failed'

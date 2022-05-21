@@ -20,3 +20,5 @@ export interface ITag extends EntityBase {
   description: string
   color: string
 }
+
+export type Language = 'en' | 'zh-TW' | 'ja'

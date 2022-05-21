@@ -1,5 +1,5 @@
 import Dexie, { Transaction } from 'dexie'
-import { IStory, ITag } from './Timeline'
+import { IStory, ITag } from './types'
 
 export class AppDatabase extends Dexie {
   stories!: Dexie.Table<IStory, number>

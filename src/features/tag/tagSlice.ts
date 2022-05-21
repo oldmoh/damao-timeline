@@ -8,7 +8,7 @@ import {
 } from '@reduxjs/toolkit'
 import { db } from '../../app/db'
 import { RootState } from '../../app/store'
-import { ITag } from '../../app/Timeline'
+import { ITag } from '../../app/types'
 
 interface TagState extends EntityState<ITag> {
   status: 'idle' | 'loading' | 'succeeded' | 'failed'

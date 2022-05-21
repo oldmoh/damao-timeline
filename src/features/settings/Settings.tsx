@@ -9,8 +9,9 @@ import {
 } from '@mui/material'
 import { FormattedMessage } from 'react-intl'
 
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
-import { getSettings, Language, setLanguage } from './settingsSlice'
+import { useAppDispatch, useAppSelector } from '../../common/hooks'
+import { getSettings, setLanguage } from './settingsSlice'
+import { Language } from '../../app/types'
 
 export default () => {
   const dispatch = useAppDispatch()
@@ -39,15 +40,15 @@ export default () => {
                 defaultMessage={'English'}
               />
             </MenuItem>
-            <MenuItem value="cn">
+            <MenuItem value="zh-TW">
               <FormattedMessage
-                id="settings.lang.cn"
-                defaultMessage={'Chinese'}
+                id="settings.lang.zh-TW"
+                defaultMessage={'Chinese(Taiwan)'}
               />
             </MenuItem>
-            <MenuItem value="jp">
+            <MenuItem value="ja">
               <FormattedMessage
-                id="settings.lang.jp"
+                id="settings.lang.ja"
                 defaultMessage={'Japanese'}
               />
             </MenuItem>

@@ -32,13 +32,13 @@
   "settings.lang": {
     "defaultMessage": "Language"
   },
-  "settings.lang.cn": {
-    "defaultMessage": "Chinese"
+  "settings.lang.zh-TW": {
+    "defaultMessage": "Chinese(Taiwan)"
   },
   "settings.lang.en": {
     "defaultMessage": "English"
   },
-  "settings.lang.jp": {
+  "settings.lang.ja": {
     "defaultMessage": "Japanese"
   },
   "settings.title": {
