@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { FormattedMessage } from 'react-intl'
 import {
   AppBar,
@@ -12,10 +12,12 @@ import {
   CircularProgress,
 } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
+import EventIcon from '@mui/icons-material/Event'
+import BookmarkIcon from '@mui/icons-material/Bookmark'
 
 import './App.scss'
 import { MoreActionsMenu } from './components/MoreActionsMenu'
-import Routes, { navLinks } from './routes/Routes'
+import Routes from './routes/Routes'
 import ListNavItem from './components/ListNavItem'
 import { useAppSelector, useI18n, useInitializer } from './common/hooks'
 import { IntlProvider } from 'react-intl'
@@ -33,17 +35,22 @@ function App() {
     <>
       <Toolbar />
       <List>
-        {navLinks.map((link) => (
-          <ListNavItem
-            key={`nav-${link.to}`}
-            to={link.to}
-            linkName={link.name}
-            icon={link.icon}
-            onClick={() => {
-              setIsDrawerOpened(false)
-            }}
-          />
-        ))}
+        <ListNavItem
+          key={`nav-index`}
+          to={'/'}
+          linkName={
+            <FormattedMessage id="nav.timeline" defaultMessage={'Timeline'} />
+          }
+          icon={<EventIcon />}
+          onClick={() => setIsDrawerOpened(false)}
+        />
+        <ListNavItem
+          key={`nav-tags`}
+          to={'/tags'}
+          linkName={<FormattedMessage id="nav.tag" defaultMessage={'Tag'} />}
+          icon={<BookmarkIcon />}
+          onClick={() => setIsDrawerOpened(false)}
+        />
       </List>
     </>
   )

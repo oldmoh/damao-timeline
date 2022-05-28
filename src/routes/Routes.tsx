@@ -1,7 +1,4 @@
-import React from 'react'
 import { useRoutes } from 'react-router-dom'
-import EventIcon from '@mui/icons-material/Event'
-import BookmarkIcon from '@mui/icons-material/Bookmark'
 
 import Timeline from '../features/timeline/Timeline'
 import StoryForm from '../features/timeline/StoryForm'
@@ -10,7 +7,6 @@ import TagForm from '../features/tag/TagForm'
 import NotFoundPage from '../components/NotFoundPage'
 import Stories from '../features/timeline/Stories'
 import TagTable from '../features/tag/TagTable'
-import { FormattedMessage } from 'react-intl'
 import Settings from '../features/settings/Settings'
 
 export default () => {
@@ -44,22 +40,3 @@ export default () => {
   ])
   return routes
 }
-
-export type NavLink = {
-  to: string
-  name: string | React.ReactNode
-  icon?: React.ReactNode
-}
-
-export const navLinks: NavLink[] = [
-  {
-    to: '/',
-    name: <FormattedMessage id="nav.timeline" defaultMessage={'Timeline'} />,
-    icon: <EventIcon />,
-  },
-  {
-    to: '/tags',
-    name: <FormattedMessage id="nav.tag" defaultMessage={'Tag'} />,
-    icon: <BookmarkIcon />,
-  },
-]
