@@ -58,7 +58,6 @@ export const fetchStoryById = createAsyncThunk(
 export const insertStory = createAsyncThunk(
   'timeline/insert',
   async (story: IStory, thunkAPI) => {
-    // TODO: add validation at here
     story.version = story.version === undefined ? 1 : story.version + 1
     story.createAt = new Date().getTime()
     story.updatedAt = new Date().getTime()
@@ -68,59 +67,51 @@ export const insertStory = createAsyncThunk(
         story.id = id
       })
     } catch (error) {
-      // TODO: add message id
       return thunkAPI.rejectWithValue(error)
     }
     return story
   }
 )
 
-export const updateStory = createAsyncThunk(
-  'timeline/update',
-  async (story: IStory, thunkAPI) => {
-    try {
-      // TODO: add more validation at here
-      if (story.id === undefined) {
-        // TODO: add message id
-        return thunkAPI.rejectWithValue('error message id here')
+export const updateStory = createAsyncThunk<
+  IStory,
+  IStory,
+  { state: RootState }
+>('timeline/update', async (story: IStory, thunkAPI) => {
+  try {
+    if (story.id === undefined) {
+      return thunkAPI.rejectWithValue('Story id is missing.')
+    }
+
+    story.updatedAt = new Date().getTime()
+    story.version = story.version === undefined ? 1 : story.version + 1
+    await db.transaction('rw', db.stories, async () => {
+      const record = await db.stories.get(story.id!)
+      if (record === undefined || record.version === undefined) {
+        return thunkAPI.rejectWithValue('Story does not exist.')
       }
-
-      story.updatedAt = new Date().getTime()
-      story.version = story.version === undefined ? 1 : story.version + 1
-      await db.transaction('rw', db.stories, async () => {
-        const record = await db.stories.get(story.id!)
-        if (record === undefined || record.version === undefined) {
-          // TODO: add message id
-          return thunkAPI.rejectWithValue('error message id here')
-        }
-        if (story.version! <= record.version) {
-          // TODO: add message id
-          return thunkAPI.rejectWithValue('error message id here')
-        }
-        const updatedRecordCount: number = await db.stories.update(
-          story.id!,
-          story
-        )
-        if (updatedRecordCount === 0) {
-          // TODO: add message id
-          return thunkAPI.rejectWithValue('error message id here')
-        }
-      })
-    } catch (error) {
-      // dispatch exception occurred while updaing
-      return thunkAPI.rejectWithValue(error)
-    }
-    return story
+      if (story.version! <= record.version) {
+        return thunkAPI.rejectWithValue('Optimisitc lock is hanged.')
+      }
+      const updatedRecordCount: number = await db.stories.update(
+        story.id!,
+        story
+      )
+      if (updatedRecordCount === 0) {
+        return thunkAPI.rejectWithValue('Update failed.')
+      }
+    })
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error)
   }
-)
+  return story
+})
 
 export const deleteStory = createAsyncThunk(
   'timeline/delete',
   async (story: IStory, thunkAPI) => {
     if (story.id === undefined) {
-      // dispatch validation failed
-      // TODO: add message id
-      return thunkAPI.rejectWithValue('error message id here')
+      return thunkAPI.rejectWithValue('Story id is missing.')
     }
 
     try {
@@ -128,8 +119,7 @@ export const deleteStory = createAsyncThunk(
         await db.stories.delete(story.id!)
       })
     } catch (error) {
-      // TODO: add message id
-      return thunkAPI.rejectWithValue('error message id here')
+      return thunkAPI.rejectWithValue(error)
     }
     return story
   }
@@ -156,6 +146,7 @@ const timelineSlice = createSlice({
       })
       .addCase(selectAllStories.rejected, (state, action) => {
         state.status = 'failed'
+        console.log(action)
       })
       .addCase(insertStory.pending, (state, action) => {
         state.status = 'loading'

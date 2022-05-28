@@ -78,10 +78,8 @@ export const updateTag = createAsyncThunk(
   'tag/update',
   async (tag: ITag, thunkAPI) => {
     try {
-      // TODO: add more validation at here
       if (tag.id === undefined) {
-        // TODO: add message id
-        return thunkAPI.rejectWithValue('error message id here')
+        return thunkAPI.rejectWithValue('Tag id is missing.')
       }
 
       tag.updatedAt = new Date().getTime()
@@ -89,22 +87,18 @@ export const updateTag = createAsyncThunk(
       await db.transaction('rw', db.tags, async () => {
         const record = await db.tags.get(tag.id!)
         if (record === undefined || record.version === undefined) {
-          // TODO: add message id
-          return thunkAPI.rejectWithValue('error message id here')
+          return thunkAPI.rejectWithValue('Tag does not exist.')
         }
         if (tag.version === record.version) {
-          // TODO: add message id
-          return thunkAPI.rejectWithValue('error message id here')
+          return thunkAPI.rejectWithValue('Optimistic lock is hanged.')
         }
 
         const updatedRecordCount: number = await db.tags.update(tag.id!, tag)
         if (updatedRecordCount === 0) {
-          // TODO: add message id
-          return thunkAPI.rejectWithValue('error message id here')
+          return thunkAPI.rejectWithValue('Update failed.')
         }
       })
     } catch (error) {
-      // dispatch exception occurred while updaing
       return thunkAPI.rejectWithValue(error)
     }
     return tag
@@ -115,9 +109,7 @@ export const deleteTag = createAsyncThunk(
   'tag/delete',
   async (tag: ITag, thunkAPI) => {
     if (tag.id === undefined) {
-      // dispatch validation failed
-      // TODO: add message id
-      return thunkAPI.rejectWithValue('error message id here')
+      return thunkAPI.rejectWithValue('Tag id is missing.')
     }
 
     try {
@@ -125,8 +117,7 @@ export const deleteTag = createAsyncThunk(
         await db.tags.delete(tag.id!)
       })
     } catch (error) {
-      // TODO: add message id
-      return thunkAPI.rejectWithValue('error message id here')
+      return thunkAPI.rejectWithValue(error)
     }
     return tag
   }

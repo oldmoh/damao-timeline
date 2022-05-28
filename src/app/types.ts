@@ -21,4 +21,9 @@ export interface ITag extends EntityBase {
   color: string
 }
 
+export interface ISettings extends EntityBase {
+  id?: number
+  lang: Language
+}
+
 export type Language = 'en' | 'zh-TW' | 'ja'

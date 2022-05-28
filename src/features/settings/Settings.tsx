@@ -10,7 +10,7 @@ import {
 import { FormattedMessage } from 'react-intl'
 
 import { useAppDispatch, useAppSelector } from '../../common/hooks'
-import { getSettings, setLanguage } from './settingsSlice'
+import { getSettings, updateSettings } from './settingsSlice'
 import { Language } from '../../app/types'
 
 export default () => {
@@ -18,9 +18,11 @@ export default () => {
   const appSettings = useAppSelector(getSettings)
   const [lang, setLang] = useState(appSettings.lang)
 
-  const handleLanguageChanged = (event: SelectChangeEvent) => {
+  const handleLanguageChanged = async (event: SelectChangeEvent) => {
     setLang(event.target.value as Language)
-    dispatch(setLanguage(event.target.value as Language))
+    await dispatch(
+      updateSettings({ ...appSettings, lang: event.target.value as Language })
+    )
   }
 
   return (

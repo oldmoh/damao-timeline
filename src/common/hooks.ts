@@ -3,7 +3,13 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 
 import { selectAllTags } from '../features/tag/tagSlice'
 import type { RootState, AppDispatch } from '../app/store'
-import { getLanguage } from '../features/settings/settingsSlice'
+import {
+  fetchSettings,
+  getLanguage,
+  getSettings,
+  insertSettings,
+} from '../features/settings/settingsSlice'
+import { ISettings, Language } from '../app/types'
 
 // Use throughout your app instead of plain `useDispatch` and `useSelector`
 export const useAppDispatch = () => useDispatch<AppDispatch>()
@@ -16,8 +22,43 @@ export const useInitializer = () => {
     const initialize = async () => {
       try {
         await dispatch(selectAllTags())
+      } catch (error) {
+        console.log(error)
+      }
+
+      let hasSettings = false
+      try {
+        await dispatch(fetchSettings()).unwrap()
+        hasSettings = true
+        //setIsInitialized(true)
+      } catch (error) {
+        if (typeof error === 'string' && error === 'no settings') {
+          hasSettings = false
+        } else {
+          console.log(error)
+        }
+      }
+
+      if (hasSettings) {
         setIsInitialized(true)
-      } catch (error) {}
+        return
+      }
+
+      try {
+        let settings: ISettings = { lang: 'en' }
+        if (window.navigator && window.navigator.language) {
+          const supportedLocales: Language[] = ['en', 'zh-TW', 'ja']
+          const locale = supportedLocales.find((lang) =>
+            new RegExp(`^${lang}\b`).test(navigator.language)
+          )
+          if (locale !== undefined) settings.lang = locale
+        }
+        await dispatch(insertSettings(settings))
+      } catch (error) {
+        console.log(error)
+      }
+
+      setIsInitialized(true)
     }
     initialize()
   }, [])

@@ -1,9 +1,10 @@
 import Dexie, { Transaction } from 'dexie'
-import { IStory, ITag } from './types'
+import { ISettings, IStory, ITag } from './types'
 
 export class AppDatabase extends Dexie {
   stories!: Dexie.Table<IStory, number>
   tags!: Dexie.Table<ITag, number>
+  settings!: Dexie.Table<ISettings, number>
 
   constructor() {
     super('timeline')
@@ -17,7 +18,6 @@ export class AppDatabase extends Dexie {
       stories: '++id',
       tags: '++id, &name',
     })
-    // the follwoing is version 2, 3, etc
     db.version(2).upgrade((tx) => {
       tx.table<IStory>('stories')
         .toCollection()
@@ -38,6 +38,8 @@ export class AppDatabase extends Dexie {
           return tag
         })
     })
+
+    db.version(3).stores({ settings: '++id' })
   }
 
   /**
