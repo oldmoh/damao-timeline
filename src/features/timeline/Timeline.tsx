@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Box,
@@ -9,25 +9,36 @@ import {
   Typography,
 } from '@mui/material'
 import { Timeline } from '@mui/lab'
+import useInfiniteScroll from 'react-infinite-scroll-hook'
 
 import { useAppDispatch, useAppSelector } from '../../common/hooks'
-import { selectAll, getTimelineStatus, selectAllStories } from './timelineSlice'
+import { selectAll, fetchStories, clear } from './timelineSlice'
 import { FormattedMessage } from 'react-intl'
-import { StroyItem } from './StoryItem'
+import TimelineItem from './TimelineItem'
+import { IStoryQueryCriteria } from '../../app/types'
+import useLoadStories from './useLoadStories'
+import TimelineItemSkeleton from './TimelineItemSkeleton'
+
+const pageSize = 5
 
 export default () => {
   const dispatch = useAppDispatch()
-  const stories = useAppSelector(selectAll)
-  const status = useAppSelector(getTimelineStatus)
   const navigate = useNavigate()
 
-  useEffect(() => {
-    dispatch(selectAllStories())
-  }, [])
+  const { isLoading, hasNext, isDisabled, onLoadMore, stories } =
+    useLoadStories()
 
-  const timelineItems = stories.map((story) => (
-    <StroyItem storyId={story.id!} key={`TimelineStory-${story.id}`} />
-  ))
+  const [sentryRef] = useInfiniteScroll({
+    loading: isLoading,
+    hasNextPage: hasNext,
+    onLoadMore,
+    disabled: isDisabled,
+    rootMargin: '0px 0px 40px 0px',
+  })
+
+  useEffect(() => {
+    dispatch(clear)
+  }, [])
 
   return (
     <Stack spacing={4}>
@@ -41,9 +52,16 @@ export default () => {
           </Button>
         </ButtonGroup>
       </Box>
-      <Box sx={{ display: 'flex' }}>
-        {status === 'loading' && <CircularProgress />}
-        {status === 'succeeded' && <Timeline>{timelineItems}</Timeline>}
+      <Box>
+        <Timeline>
+          {stories.map((story) => (
+            <TimelineItem
+              storyId={story.id!}
+              key={`TimelineStory-${story.id}`}
+            />
+          ))}
+          {hasNext && <TimelineItemSkeleton ref={sentryRef} />}
+        </Timeline>
       </Box>
     </Stack>
   )

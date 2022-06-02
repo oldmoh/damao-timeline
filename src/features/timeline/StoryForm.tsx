@@ -123,7 +123,8 @@ export default () => {
       } else {
         await appDispatch(insertStory(state.story))
       }
-      navigate('/')
+      if (hasStoryId) navigate(`/stories/${state.story.id}`)
+      else navigate('/')
     } catch (error) {
       dispatch(updateFormState({ status: 'ready' }))
       console.log(error)
@@ -131,7 +132,8 @@ export default () => {
   }
 
   const handleClose = () => {
-    navigate('/')
+    if (hasStoryId) navigate(`/stories/${state.story.id}`)
+    else navigate('/')
   }
 
   const handleDelete = async () => {

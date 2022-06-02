@@ -27,3 +27,10 @@ export interface ISettings extends EntityBase {
 }
 
 export type Language = 'en' | 'zh-TW' | 'ja'
+
+export interface IStoryQueryCriteria {
+  from?: number
+  to?: number
+  order?: 'ascend' | 'descend'
+  tags?: number[]
+}

@@ -8,11 +8,14 @@ import {
 } from '@reduxjs/toolkit'
 import { RootState } from '../../app/store'
 import { db } from '../../app/db'
-import { IStory } from '../../app/types'
+import { IStoryQueryCriteria, IStory } from '../../app/types'
 
 interface TimlineState extends EntityState<IStory> {
   status: 'idle' | 'loading' | 'succeeded' | 'failed'
   error: string | null
+  totalCount: number
+  queryCriteria: IStoryQueryCriteria
+  story?: IStory
 }
 
 const storyAdapter = createEntityAdapter<IStory>({
@@ -22,25 +25,67 @@ const storyAdapter = createEntityAdapter<IStory>({
 const initialState: TimlineState = storyAdapter.getInitialState({
   status: 'idle',
   error: null,
+  totalCount: 0,
+  queryCriteria: {
+    from: Date.parse('2022/01/01 15:00:00'),
+    to: new Date().getTime(),
+    order: 'descend',
+  },
 })
 
-export const selectAllStories = createAsyncThunk(
-  'timeline/selectAll',
-  async (story: void, thunkAPI) => {
-    let stories: IStory[] = []
-    try {
-      stories = await db.transaction(
-        'r',
-        db.stories,
-        db.tags,
-        async () => await db.stories.toArray()
-      )
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error)
-    }
-    return stories
+export const fetchStories = createAsyncThunk<
+  IStory[],
+  void,
+  { state: RootState }
+>('timeline/fetchStories', async (_, thunkAPI) => {
+  const criteria = thunkAPI.getState().timeline.queryCriteria
+  try {
+    return await db.transaction('r', db.stories, db.tags, async (tx) => {
+      let collection = db.stories.orderBy('happenedAt')
+      collection.filter((story) => {
+        const happenedAt = new Date(story.happenedAt)
+        if (criteria.from && happenedAt < new Date(criteria.from)) return false
+        if (criteria.to && happenedAt > new Date(criteria.to)) return false
+
+        return true
+      })
+      if (criteria.order === 'descend') collection = collection.reverse()
+
+      let limit = 5
+      let offset = thunkAPI.getState().timeline.ids.length
+      return await collection.offset(offset).limit(limit).toArray()
+    })
+  } catch (error) {
+    console.log(error)
+    return thunkAPI.rejectWithValue(error)
   }
-)
+})
+
+export const countStories = createAsyncThunk<
+  number,
+  void,
+  { state: RootState }
+>('timeline/countStories', async (_, thunkAPI) => {
+  const criteria = thunkAPI.getState().timeline.queryCriteria
+  try {
+    return await db.transaction('r', db.stories, async (tx) => {
+      let collection = db.stories.orderBy('happenedAt')
+      collection.filter((story) => {
+        const happenedAt = new Date(story.happenedAt)
+        if (criteria.from && happenedAt < new Date(criteria.from)) return false
+        if (criteria.to && happenedAt > new Date(criteria.to)) return false
+
+        return true
+      })
+      if (criteria.order === 'descend') collection = collection.reverse()
+
+      return await collection.count()
+    })
+  } catch (error) {
+    console.log(error)
+    return thunkAPI.rejectWithValue(error)
+  }
+})
 
 export const fetchStoryById = createAsyncThunk(
   'timeline/fetchById',
@@ -134,20 +179,10 @@ const timelineSlice = createSlice({
     setError: (state, action: PayloadAction<string>) => {
       state.error = action.payload
     },
+    clear: storyAdapter.removeAll,
   },
   extraReducers: (builder) => {
     builder
-      .addCase(selectAllStories.pending, (state, action) => {
-        state.status = 'loading'
-      })
-      .addCase(selectAllStories.fulfilled, (state, action) => {
-        state.status = 'succeeded'
-        storyAdapter.upsertMany(state, action.payload)
-      })
-      .addCase(selectAllStories.rejected, (state, action) => {
-        state.status = 'failed'
-        console.log(action)
-      })
       .addCase(insertStory.pending, (state, action) => {
         state.status = 'loading'
       })
@@ -155,7 +190,7 @@ const timelineSlice = createSlice({
         insertStory.fulfilled,
         (state, action: PayloadAction<IStory>) => {
           state.status = 'succeeded'
-          storyAdapter.addOne(state, action.payload)
+          // storyAdapter.addOne(state, action.payload)
         }
       )
       .addCase(insertStory.rejected, (state, action) => {
@@ -173,7 +208,9 @@ const timelineSlice = createSlice({
             id: payload.id!,
             changes: payload,
           }
-          storyAdapter.updateOne(state, updatedStory)
+          if (state.ids.includes(payload.id!)) {
+            storyAdapter.updateOne(state, updatedStory)
+          }
         }
       )
       .addCase(updateStory.rejected, (state, action) => {
@@ -198,9 +235,32 @@ const timelineSlice = createSlice({
       })
       .addCase(fetchStoryById.fulfilled, (state, action) => {
         state.status = 'succeeded'
-        if (action.payload) storyAdapter.upsertOne(state, action.payload)
+        if (action.payload && state.ids.includes(action.payload.id!)) {
+          storyAdapter.upsertOne(state, action.payload)
+          state.story = action.payload
+        }
       })
       .addCase(fetchStoryById.rejected, (state, action) => {
+        state.status = 'failed'
+      })
+      .addCase(fetchStories.pending, (state, action) => {
+        state.status = 'loading'
+      })
+      .addCase(fetchStories.fulfilled, (state, action) => {
+        state.status = 'succeeded'
+        storyAdapter.setMany(state, action.payload)
+      })
+      .addCase(fetchStories.rejected, (state, action) => {
+        state.status = 'failed'
+      })
+      .addCase(countStories.pending, (state, action) => {
+        state.status = 'loading'
+      })
+      .addCase(countStories.fulfilled, (state, action) => {
+        state.status = 'succeeded'
+        state.totalCount = action.payload
+      })
+      .addCase(countStories.rejected, (state, action) => {
         state.status = 'failed'
       })
   },
@@ -212,5 +272,10 @@ export const { selectById, selectAll } = storyAdapter.getSelectors<RootState>(
   (state) => state.timeline
 )
 
+export const { clear } = timelineSlice.actions
+
 export const getTimelineStatus = (state: RootState) => state.timeline.status
 export const getErrorMessage = (state: RootState) => state.timeline.error
+export const getTotalCount = (state: RootState) => state.timeline.totalCount
+export const getQueryCriteria = (state: RootState) =>
+  state.timeline.queryCriteria

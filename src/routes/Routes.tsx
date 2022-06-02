@@ -8,6 +8,7 @@ import NotFoundPage from '../components/NotFoundPage'
 import Stories from '../features/timeline/Stories'
 import TagTable from '../features/tag/TagTable'
 import Settings from '../features/settings/Settings'
+import Story from '../features/timeline/Story'
 
 export default () => {
   const routes = useRoutes([
@@ -17,7 +18,8 @@ export default () => {
       element: <Stories />,
       children: [
         { path: 'create', element: <StoryForm /> },
-        { path: ':storyId', element: <StoryForm /> },
+        { path: ':storyId', element: <Story /> },
+        { path: ':storyId/update', element: <StoryForm /> },
       ],
     },
     {

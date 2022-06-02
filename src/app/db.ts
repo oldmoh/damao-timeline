@@ -40,6 +40,7 @@ export class AppDatabase extends Dexie {
     })
 
     db.version(3).stores({ settings: '++id' })
+    db.version(4).stores({ stories: '++id, happenedAt' })
   }
 
   /**
