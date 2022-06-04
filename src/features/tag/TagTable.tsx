@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   Button,
   CircularProgress,
+  Fab,
   List,
   ListItem,
   ListItemButton,
@@ -11,6 +12,7 @@ import {
   Stack,
 } from '@mui/material'
 import { Box } from '@mui/system'
+import AddIcon from '@mui/icons-material/Add'
 
 import { useAppDispatch, useAppSelector } from '../../common/hooks'
 import { getTagStatus, selectAll, selectAllTags } from './tagSlice'
@@ -42,14 +44,18 @@ export default () => {
   }, [])
 
   return (
-    <Stack spacing={4}>
-      <Box>
-        <Button onClick={() => navigate('/tags/create')} variant="contained">
-          <FormattedMessage id="button.add" defaultMessage={'Add'} />
-        </Button>
-      </Box>
-      {status === 'loading' && <CircularProgress />}
-      {status === 'succeeded' && <List>{listItems}</List>}
-    </Stack>
+    <>
+      <Stack spacing={4}>
+        {status === 'loading' && <CircularProgress />}
+        {status === 'succeeded' && <List>{listItems}</List>}
+      </Stack>
+      <Fab
+        sx={{ position: 'fixed', bottom: 16, right: 16 }}
+        color="primary"
+        onClick={() => navigate('/tags/create')}
+      >
+        <AddIcon />
+      </Fab>
+    </>
   )
 }

@@ -1,25 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  CircularProgress,
-  Stack,
-  Typography,
-} from '@mui/material'
+import { Box, Fab, Stack, Typography } from '@mui/material'
 import { Timeline } from '@mui/lab'
 import useInfiniteScroll from 'react-infinite-scroll-hook'
+import AddIcon from '@mui/icons-material/Add'
 
-import { useAppDispatch, useAppSelector } from '../../common/hooks'
-import { selectAll, fetchStories, clear } from './timelineSlice'
+import { useAppDispatch } from '../../common/hooks'
+import { clear } from './timelineSlice'
 import { FormattedMessage } from 'react-intl'
 import TimelineItem from './TimelineItem'
-import { IStoryQueryCriteria } from '../../app/types'
 import useLoadStories from './useLoadStories'
 import TimelineItemSkeleton from './TimelineItemSkeleton'
-
-const pageSize = 5
 
 export default () => {
   const dispatch = useAppDispatch()
@@ -41,28 +32,30 @@ export default () => {
   }, [])
 
   return (
-    <Stack spacing={4}>
-      <Typography variant="h5">
-        <FormattedMessage id="timeline.title" defaultMessage={'Timeline'} />
-      </Typography>
-      <Box>
-        <ButtonGroup variant="contained">
-          <Button onClick={() => navigate('/stories/create')}>
-            <FormattedMessage defaultMessage="Add" id="button.add" />
-          </Button>
-        </ButtonGroup>
-      </Box>
-      <Box>
-        <Timeline>
-          {stories.map((story) => (
-            <TimelineItem
-              storyId={story.id!}
-              key={`TimelineStory-${story.id}`}
-            />
-          ))}
-          {hasNext && <TimelineItemSkeleton ref={sentryRef} />}
-        </Timeline>
-      </Box>
-    </Stack>
+    <>
+      <Stack spacing={4}>
+        <Typography variant="h5">
+          <FormattedMessage id="timeline.title" defaultMessage={'Timeline'} />
+        </Typography>
+        <Box>
+          <Timeline>
+            {stories.map((story) => (
+              <TimelineItem
+                storyId={story.id!}
+                key={`TimelineStory-${story.id}`}
+              />
+            ))}
+            {hasNext && <TimelineItemSkeleton ref={sentryRef} />}
+          </Timeline>
+        </Box>
+      </Stack>
+      <Fab
+        sx={{ position: 'fixed', bottom: 16, right: 16 }}
+        color="primary"
+        onClick={() => navigate('/stories/create')}
+      >
+        <AddIcon />
+      </Fab>
+    </>
   )
 }
