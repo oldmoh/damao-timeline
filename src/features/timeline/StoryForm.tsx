@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer, useRef } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import {
   Button,
   Checkbox,
@@ -16,31 +16,27 @@ import DateAdapter from '@mui/lab/AdapterMoment'
 import { FormattedMessage } from 'react-intl'
 import { ColorResult } from 'react-color'
 
-import { IStory } from '../../app/types'
-import {
-  insertStory,
-  updateStory,
-  deleteStory,
-  fetchStoryById,
-} from './timelineSlice'
+import { IStory, IValidityState } from '../../app/types'
+import { insertStory, updateStory, deleteStory } from './timelineSlice'
 import { useAppDispatch, useAppSelector } from '../../common/hooks'
 import { selectAll } from '../tag/tagSlice'
 import ColorPicker from '../../components/ColorPicker'
 import { LocalOffer } from '@mui/icons-material'
+import useLoadStory from './useLoadStory'
 
 interface IFormState {
-  isTitleInvalid: boolean
-  isTimeInvalid: boolean
-  isDetailInvalid: boolean
-  isColorInvalid: boolean
+  titleValidity: IValidityState
+  timeValidity: IValidityState
+  detailValidity: IValidityState
+  colorValidity: IValidityState
   story: IStory
-  status: 'loading' | 'ready' | 'submitting' | 'deleting'
+  status: 'ready' | 'submitting' | 'deleting'
 }
 
 type Action =
   | { type: 'update'; payload: any }
   | { type: 'updateStory'; payload: any }
-  | { type: 'error'; message: string }
+  | { type: 'validate'; message: string }
 
 /**
  * reducer of this element
@@ -54,7 +50,7 @@ function reducer(state: IFormState, action: Action): IFormState {
       return { ...state, ...action.payload }
     case 'updateStory':
       return { ...state, story: { ...state.story, ...action.payload } }
-    case 'error':
+    case 'validate':
       return { ...state }
     default:
       return state
@@ -62,10 +58,10 @@ function reducer(state: IFormState, action: Action): IFormState {
 }
 
 const initailState: IFormState = {
-  isTitleInvalid: false,
-  isTimeInvalid: false,
-  isDetailInvalid: false,
-  isColorInvalid: false,
+  titleValidity: { valid: true, error: null },
+  timeValidity: { valid: true, error: null },
+  detailValidity: { valid: true, error: null },
+  colorValidity: { valid: true, error: null },
   story: {
     title: '',
     happenedAt: new Date().getTime(),
@@ -74,7 +70,7 @@ const initailState: IFormState = {
     tagIds: [],
     isArchived: false,
   },
-  status: 'loading',
+  status: 'ready',
 }
 
 /**
@@ -86,45 +82,54 @@ const updateFormState = (payload: { [index: string]: any }): Action => {
   return { type: 'update', payload }
 }
 
+/**
+ * create update action with payload
+ * @param payload story
+ * @returns update action
+ */
+const updateFormStory = (payload: { [index: string]: any }): Action => {
+  return { type: 'updateStory', payload }
+}
+
+/**
+ *
+ * @param validity validity state of input elements
+ * @returns validity state of form elements
+ */
+function validate(validity: ValidityState): IValidityState {
+  if (validity.valid) return { valid: true, error: null }
+
+  if (validity.valueMissing) return { valid: false, error: 'value is missing' }
+
+  return { valid: false, error: null }
+}
+
 export default () => {
   const appDispatch = useAppDispatch()
   const navigate = useNavigate()
   const tags = useAppSelector(selectAll)
-  const parameters = useParams()
-
-  const hasStoryId = parameters.storyId ? true : false
+  const { isLoading, story, hasStoryId } = useLoadStory()
 
   const [state, dispatch] = useReducer(reducer, initailState)
   const formElement = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
-    if (state.status !== 'loading') return
-    const fetchStory = async () => {
-      try {
-        const storyId = parseInt(parameters.storyId ?? '0')
-        const story = await appDispatch(fetchStoryById(storyId)).unwrap()
-        if (story) updateFormStory(story)
-      } catch (error) {
-        console.log(error)
-      }
-      dispatch(updateFormState({ status: 'ready' }))
-    }
-    fetchStory()
-  }, [state.status, parameters])
+    if (isLoading) return
+    dispatch({ type: 'updateStory', payload: story })
+  }, [isLoading, story])
 
   const handleSubmit = async () => {
     if (formElement.current === null || !formElement.current.checkValidity())
       return
-
     try {
       dispatch(updateFormState({ status: 'submitting' }))
-      if (parameters.storyId) {
+      if (hasStoryId) {
         await appDispatch(updateStory(state.story))
+        navigate(`/stories/${state.story.id}`)
       } else {
         await appDispatch(insertStory(state.story))
+        navigate('/')
       }
-      if (hasStoryId) navigate(`/stories/${state.story.id}`)
-      else navigate('/')
     } catch (error) {
       dispatch(updateFormState({ status: 'ready' }))
       console.log(error)
@@ -132,22 +137,29 @@ export default () => {
   }
 
   const handleClose = () => {
-    if (hasStoryId) navigate(`/stories/${state.story.id}`)
-    else navigate('/')
+    navigate(hasStoryId ? `/stories/${state.story.id}` : '/')
   }
 
   const handleDelete = async () => {
     try {
       dispatch(updateFormState({ status: 'deleting' }))
-      appDispatch(deleteStory(state.story!))
+      await appDispatch(deleteStory(state.story!))
       navigate('/')
     } catch (error) {
       dispatch(updateFormState({ status: 'ready' }))
     }
   }
 
-  const updateFormStory = (payload: { [index: string]: any }) =>
-    dispatch({ type: 'updateStory', payload })
+  const handleColorSelected = (
+    color: ColorResult,
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const colorString: string = [color.rgb.r, color.rgb.g, color.rgb.b].reduce(
+      (result, value) => `${result}${value.toString(16)}`,
+      '#'
+    )
+    dispatch(updateFormStory({ color: colorString }))
+  }
 
   const tagCheckboxes = tags.map((tag) => {
     return (
@@ -159,14 +171,13 @@ export default () => {
             value={tag.id}
             onChange={({ target }) => {
               const checkbox = target as HTMLInputElement
-              if (checkbox.checked)
-                updateFormStory({ tagIds: [...state.story.tagIds, tag.id] })
+              let tagIds: number[]
+              if (checkbox.checked) tagIds = [...state.story.tagIds, tag.id!]
               else
-                updateFormStory({
-                  tagIds: state.story.tagIds.filter(
-                    (id: number) => id !== tag.id
-                  ),
-                })
+                tagIds = state.story.tagIds.filter(
+                  (id: number) => id !== tag.id
+                )
+              dispatch(updateFormStory({ tagIds }))
             }}
           />
         }
@@ -185,23 +196,12 @@ export default () => {
       onClick={handleDelete}
       color="error"
       variant="outlined"
-      disabled={state.status === 'submitting'}
+      disabled={isLoading || state.status === 'submitting'}
       loading={state.status === 'submitting'}
     >
       <FormattedMessage defaultMessage="Delete" id="button.delete" />
     </LoadingButton>
   )
-
-  const handleColorSelected = (
-    color: ColorResult,
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const colorString: string = [color.rgb.r, color.rgb.g, color.rgb.b].reduce(
-      (result, value) => `${result}${value.toString(16)}`,
-      '#'
-    )
-    updateFormStory({ color: colorString })
-  }
 
   const storyForm = (
     <form ref={formElement}>
@@ -211,9 +211,16 @@ export default () => {
           label={<FormattedMessage defaultMessage="Title" id="story.title" />}
           required
           value={state.story.title}
-          error={state.isTitleInvalid}
-          onChange={(event) => updateFormStory({ title: event.target.value })}
-          onInvalid={() => dispatch(updateFormState({ isTitleInvalid: true }))}
+          error={!state.titleValidity.valid}
+          onChange={({ target }) =>
+            dispatch(updateFormStory({ title: target.value }))
+          }
+          onInvalid={(event) => {
+            const target = event.target as HTMLInputElement
+            dispatch(
+              updateFormState({ titleValidity: validate(target.validity) })
+            )
+          }}
         />
         <LocalizationProvider dateAdapter={DateAdapter}>
           <DateTimePicker
@@ -228,7 +235,7 @@ export default () => {
             renderInput={(params) => <TextField {...params} />}
             onChange={(storyDatetime) => {
               if (storyDatetime === null) return
-              updateFormStory({ happenedAt: storyDatetime.valueOf() })
+              dispatch(updateFormStory({ happenedAt: storyDatetime.valueOf() }))
             }}
           />
         </LocalizationProvider>
@@ -237,9 +244,16 @@ export default () => {
           label={<FormattedMessage defaultMessage="Detail" id="story.detail" />}
           multiline
           value={state.story.detail}
-          error={state.isDetailInvalid}
-          onChange={({ target }) => updateFormStory({ detail: target.value })}
-          onInvalid={() => dispatch(updateFormState({ isDetailInvalid: true }))}
+          error={!state.detailValidity.valid}
+          onChange={({ target }) =>
+            dispatch(updateFormStory({ detail: target.value }))
+          }
+          onInvalid={(event) => {
+            const target = event.target as HTMLInputElement
+            dispatch(
+              updateFormState({ titleValidity: validate(target.validity) })
+            )
+          }}
         />
         <FormGroup>
           <p>
@@ -260,18 +274,18 @@ export default () => {
     <Stack spacing={2}>
       <Typography variant="h5">
         {hasStoryId ? (
-          <FormattedMessage defaultMessage="Add" id="story.form.title.add" />
-        ) : (
           <FormattedMessage defaultMessage="Edit" id="story.form.title.edit" />
+        ) : (
+          <FormattedMessage defaultMessage="Add" id="story.form.title.add" />
         )}
       </Typography>
-      {state.status === 'loading' ? <CircularProgress /> : storyForm}
+      {isLoading ? <CircularProgress /> : storyForm}
       <ButtonGroup>
         <LoadingButton
           variant="outlined"
           onClick={handleSubmit}
           color="success"
-          disabled={state.status === 'deleting'}
+          disabled={isLoading || state.status === 'deleting'}
           loading={state.status === 'deleting'}
         >
           {hasStoryId ? (
@@ -281,7 +295,7 @@ export default () => {
           )}
         </LoadingButton>
         {hasStoryId && deleteButton}
-        <Button onClick={handleClose} variant="outlined">
+        <Button onClick={handleClose} variant="outlined" disabled={isLoading}>
           <FormattedMessage defaultMessage="Back" id="button.back" />
         </Button>
       </ButtonGroup>

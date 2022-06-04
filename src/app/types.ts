@@ -44,3 +44,8 @@ export type PendingAction = ReturnType<GenericAsyncThunk['pending']>
 export function isPendingAction(action: AnyAction): action is PendingAction {
   return action.type.endsWith('/pending')
 }
+
+export interface IValidityState {
+  valid: boolean
+  error: string | null
+}
