@@ -45,13 +45,19 @@ export const useInitializer = () => {
       }
 
       try {
-        let settings: ISettings = { lang: 'en' }
+        let settings: ISettings = { lang: 'en', theme: 'light' }
         if (window.navigator && window.navigator.language) {
           const supportedLocales: Language[] = ['en', 'zh-TW', 'ja']
           const locale = supportedLocales.find((lang) =>
             new RegExp(`^${lang}\b`).test(navigator.language)
           )
           if (locale !== undefined) settings.lang = locale
+        }
+        if (
+          window.matchMedia &&
+          window.matchMedia('(prefers-color-scheme: dark)').matches
+        ) {
+          settings.theme = 'dark'
         }
         await dispatch(insertSettings(settings))
       } catch (error) {

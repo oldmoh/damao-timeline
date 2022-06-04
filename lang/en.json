@@ -44,6 +44,9 @@
   "settings.title": {
     "defaultMessage": "Settings"
   },
+  "settings.darkTheme": {
+    "defaultMessage": "Dark Theme"
+  },
   "story.color": {
     "defaultMessage": "Color"
   },

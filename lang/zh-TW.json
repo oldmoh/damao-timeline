@@ -41,6 +41,9 @@
   "settings.lang.ja": {
     "defaultMessage": "日文"
   },
+  "settings.darkTheme": {
+    "defaultMessage": "深色主題"
+  },
   "settings.title": {
     "defaultMessage": "設定"
   },

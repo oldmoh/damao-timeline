@@ -5,6 +5,7 @@ import {
   Select,
   SelectChangeEvent,
   Stack,
+  Switch,
   Typography,
 } from '@mui/material'
 import { FormattedMessage } from 'react-intl'
@@ -17,12 +18,18 @@ export default () => {
   const dispatch = useAppDispatch()
   const appSettings = useAppSelector(getSettings)
   const [lang, setLang] = useState(appSettings.lang)
+  const [theme, setTheme] = useState(appSettings.theme)
 
   const handleLanguageChanged = async (event: SelectChangeEvent) => {
     setLang(event.target.value as Language)
     await dispatch(
       updateSettings({ ...appSettings, lang: event.target.value as Language })
     )
+  }
+
+  const handlModeSwithced = async () => {
+    setTheme((value) => (value === 'light' ? 'dark' : 'light'))
+    await dispatch(updateSettings({ ...appSettings, theme: theme }))
   }
 
   return (
@@ -56,6 +63,15 @@ export default () => {
             </MenuItem>
           </Select>
         </FormControl>
+      </Stack>
+      <Stack spacing={2} paddingX={4}>
+        <Typography variant="body1">
+          <FormattedMessage
+            id="settings.darkTheme"
+            defaultMessage={'Dark Theme'}
+          />
+        </Typography>
+        <Switch onChange={handlModeSwithced} checked={theme === 'dark'} />
       </Stack>
     </Stack>
   )

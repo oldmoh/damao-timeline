@@ -11,7 +11,7 @@ interface SettingsState {
 
 const initialState: SettingsState = {
   status: 'idle',
-  settings: { lang: 'en' },
+  settings: { lang: 'en', theme: 'light' },
   error: null,
 }
 
