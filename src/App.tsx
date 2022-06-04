@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { IntlProvider, FormattedMessage } from 'react-intl'
 import {
   AppBar,
@@ -32,17 +32,19 @@ function App() {
   const messages = useI18n()
   const settings = useAppSelector(getSettings)
 
-  const theme = createTheme({
-    palette: {
-      mode: settings.theme,
-      primary: {
-        main: '#f39800',
+  const theme = useMemo(() => {
+    return createTheme({
+      palette: {
+        mode: settings.theme,
+        primary: {
+          main: '#f39800',
+        },
+        secondary: {
+          main: '#44617b',
+        },
       },
-      secondary: {
-        main: '#44617b',
-      },
-    },
-  })
+    })
+  }, [settings.theme])
 
   const drawer = (
     <>

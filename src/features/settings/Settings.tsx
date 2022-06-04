@@ -18,7 +18,6 @@ export default () => {
   const dispatch = useAppDispatch()
   const appSettings = useAppSelector(getSettings)
   const [lang, setLang] = useState(appSettings.lang)
-  const [theme, setTheme] = useState(appSettings.theme)
 
   const handleLanguageChanged = async (event: SelectChangeEvent) => {
     setLang(event.target.value as Language)
@@ -28,8 +27,12 @@ export default () => {
   }
 
   const handlModeSwithced = async () => {
-    setTheme((value) => (value === 'light' ? 'dark' : 'light'))
-    await dispatch(updateSettings({ ...appSettings, theme: theme }))
+    await dispatch(
+      updateSettings({
+        ...appSettings,
+        theme: appSettings.theme === 'light' ? 'dark' : 'light',
+      })
+    )
   }
 
   return (
@@ -71,7 +74,10 @@ export default () => {
             defaultMessage={'Dark Theme'}
           />
         </Typography>
-        <Switch onChange={handlModeSwithced} checked={theme === 'dark'} />
+        <Switch
+          onChange={handlModeSwithced}
+          checked={appSettings.theme === 'dark'}
+        />
       </Stack>
     </Stack>
   )
