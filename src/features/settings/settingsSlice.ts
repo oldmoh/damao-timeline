@@ -1,7 +1,13 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import {
+  AnyAction,
+  AsyncThunk,
+  createAsyncThunk,
+  createSlice,
+  PayloadAction,
+} from '@reduxjs/toolkit'
 import { db } from '../../app/db'
 import { RootState } from '../../app/store'
-import { ISettings, Language } from '../../app/types'
+import { ISettings, isPendingAction, Language } from '../../app/types'
 
 interface SettingsState {
   status: 'idle' | 'loading' | 'succeeded' | 'failed'
@@ -72,9 +78,6 @@ const settingsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(updateSettings.pending, (state, action) => {
-        state.status = 'loading'
-      })
       .addCase(updateSettings.fulfilled, (state, action) => {
         state.status = 'succeeded'
         state.settings = action.payload
@@ -82,9 +85,6 @@ const settingsSlice = createSlice({
       .addCase(updateSettings.rejected, (state, action) => {
         state.status = 'failed'
         console.log(action)
-      })
-      .addCase(fetchSettings.pending, (state, action) => {
-        state.status = 'loading'
       })
       .addCase(fetchSettings.fulfilled, (state, action) => {
         state.settings = action.payload
@@ -94,9 +94,6 @@ const settingsSlice = createSlice({
         state.status = 'failed'
         console.log(action)
       })
-      .addCase(insertSettings.pending, (state, action) => {
-        state.status = 'loading'
-      })
       .addCase(insertSettings.fulfilled, (state, action) => {
         state.status = 'succeeded'
         state.settings = action.payload
@@ -104,6 +101,9 @@ const settingsSlice = createSlice({
       .addCase(insertSettings.rejected, (state, action) => {
         state.status = 'failed'
         console.log(action)
+      })
+      .addMatcher(isPendingAction, (state, action) => {
+        state.status = 'loading'
       })
   },
 })

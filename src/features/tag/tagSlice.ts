@@ -8,7 +8,7 @@ import {
 } from '@reduxjs/toolkit'
 import { db } from '../../app/db'
 import { RootState } from '../../app/store'
-import { ITag } from '../../app/types'
+import { isPendingAction, ITag } from '../../app/types'
 
 interface TagState extends EntityState<ITag> {
   status: 'idle' | 'loading' | 'succeeded' | 'failed'
@@ -133,9 +133,6 @@ const tagSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(selectAllTags.pending, (state, action) => {
-        state.status = 'loading'
-      })
       .addCase(selectAllTags.fulfilled, (state, action) => {
         state.status = 'succeeded'
         tagAdapter.upsertMany(state, action.payload)
@@ -143,18 +140,12 @@ const tagSlice = createSlice({
       .addCase(selectAllTags.rejected, (state, action) => {
         state.status = 'failed'
       })
-      .addCase(insertTag.pending, (state, action) => {
-        state.status = 'loading'
-      })
       .addCase(insertTag.fulfilled, (state, action: PayloadAction<ITag>) => {
         state.status = 'succeeded'
         tagAdapter.addOne(state, action.payload)
       })
       .addCase(insertTag.rejected, (state, action) => {
         state.status = 'failed'
-      })
-      .addCase(updateTag.pending, (state, action) => {
-        state.status = 'loading'
       })
       .addCase(updateTag.fulfilled, (state, action: PayloadAction<ITag>) => {
         state.status = 'succeeded'
@@ -168,9 +159,6 @@ const tagSlice = createSlice({
       .addCase(updateTag.rejected, (state, action) => {
         state.status = 'failed'
       })
-      .addCase(deleteTag.pending, (state, action) => {
-        state.status = 'loading'
-      })
       .addCase(deleteTag.fulfilled, (state, action: PayloadAction<ITag>) => {
         state.status = 'succeeded'
         tagAdapter.removeOne(state, action.payload.id!)
@@ -178,15 +166,15 @@ const tagSlice = createSlice({
       .addCase(deleteTag.rejected, (state, action) => {
         state.status = 'failed'
       })
-      .addCase(fetchTagById.pending, (state, action) => {
-        state.status = 'loading'
-      })
       .addCase(fetchTagById.fulfilled, (state, action) => {
         state.status = 'succeeded'
         if (action.payload) tagAdapter.upsertOne(state, action.payload)
       })
       .addCase(fetchTagById.rejected, (state, action) => {
         state.status = 'failed'
+      })
+      .addMatcher(isPendingAction, (state, action) => {
+        state.status = 'loading'
       })
   },
 })

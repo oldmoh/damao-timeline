@@ -8,7 +8,7 @@ import {
 } from '@reduxjs/toolkit'
 import { RootState } from '../../app/store'
 import { db } from '../../app/db'
-import { IStoryQueryCriteria, IStory } from '../../app/types'
+import { IStoryQueryCriteria, IStory, isPendingAction } from '../../app/types'
 
 interface TimlineState extends EntityState<IStory> {
   status: 'idle' | 'loading' | 'succeeded' | 'failed'
@@ -183,9 +183,6 @@ const timelineSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(insertStory.pending, (state, action) => {
-        state.status = 'loading'
-      })
       .addCase(
         insertStory.fulfilled,
         (state, action: PayloadAction<IStory>) => {
@@ -195,9 +192,6 @@ const timelineSlice = createSlice({
       )
       .addCase(insertStory.rejected, (state, action) => {
         state.status = 'failed'
-      })
-      .addCase(updateStory.pending, (state, action) => {
-        state.status = 'loading'
       })
       .addCase(
         updateStory.fulfilled,
@@ -217,9 +211,6 @@ const timelineSlice = createSlice({
         state.status = 'failed'
         console.log(action.payload)
       })
-      .addCase(deleteStory.pending, (state, action) => {
-        state.status = 'loading'
-      })
       .addCase(
         deleteStory.fulfilled,
         (state, action: PayloadAction<IStory>) => {
@@ -229,9 +220,6 @@ const timelineSlice = createSlice({
       )
       .addCase(deleteStory.rejected, (state, action) => {
         state.status = 'failed'
-      })
-      .addCase(fetchStoryById.pending, (state, action) => {
-        state.status = 'loading'
       })
       .addCase(fetchStoryById.fulfilled, (state, action) => {
         state.status = 'succeeded'
@@ -243,9 +231,6 @@ const timelineSlice = createSlice({
       .addCase(fetchStoryById.rejected, (state, action) => {
         state.status = 'failed'
       })
-      .addCase(fetchStories.pending, (state, action) => {
-        state.status = 'loading'
-      })
       .addCase(fetchStories.fulfilled, (state, action) => {
         state.status = 'succeeded'
         storyAdapter.setMany(state, action.payload)
@@ -253,15 +238,15 @@ const timelineSlice = createSlice({
       .addCase(fetchStories.rejected, (state, action) => {
         state.status = 'failed'
       })
-      .addCase(countStories.pending, (state, action) => {
-        state.status = 'loading'
-      })
       .addCase(countStories.fulfilled, (state, action) => {
         state.status = 'succeeded'
         state.totalCount = action.payload
       })
       .addCase(countStories.rejected, (state, action) => {
         state.status = 'failed'
+      })
+      .addMatcher(isPendingAction, (state, action) => {
+        state.status = 'loading'
       })
   },
 })

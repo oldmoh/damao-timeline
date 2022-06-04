@@ -1,3 +1,5 @@
+import { AnyAction, AsyncThunk } from '@reduxjs/toolkit'
+
 export interface EntityBase {
   version?: number
   createAt?: number
@@ -34,4 +36,11 @@ export interface IStoryQueryCriteria {
   to?: number
   order?: 'ascend' | 'descend'
   tags?: number[]
+}
+
+export type GenericAsyncThunk = AsyncThunk<unknown, unknown, any>
+export type PendingAction = ReturnType<GenericAsyncThunk['pending']>
+
+export function isPendingAction(action: AnyAction): action is PendingAction {
+  return action.type.endsWith('/pending')
 }
