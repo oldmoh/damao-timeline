@@ -6,10 +6,13 @@ import type { RootState, AppDispatch } from '../app/store'
 import {
   fetchSettings,
   getLanguage,
-  getSettings,
   insertSettings,
 } from '../features/settings/settingsSlice'
 import { ISettings, Language } from '../app/types'
+import {
+  pop,
+  selectFirstNotification,
+} from '../features/notification/notificationSlice'
 
 // Use throughout your app instead of plain `useDispatch` and `useSelector`
 export const useAppDispatch = () => useDispatch<AppDispatch>()
@@ -100,4 +103,12 @@ export const useI18n = () => {
   }, [locale])
 
   return messages
+}
+
+export const useNotification = () => {
+  const dispatch = useAppDispatch()
+  const notification = useAppSelector(selectFirstNotification)
+  const popNotification = () => dispatch(pop(notification?.id ?? 0))
+
+  return { notification, popNotification }
 }

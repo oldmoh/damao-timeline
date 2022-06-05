@@ -10,6 +10,7 @@ import {
   List,
   CssBaseline,
   CircularProgress,
+  Snackbar,
 } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
 import EventIcon from '@mui/icons-material/Event'
@@ -20,7 +21,12 @@ import './App.scss'
 import { MoreActionsMenu } from './components/MoreActionsMenu'
 import Routes from './routes/Routes'
 import ListNavItem from './components/ListNavItem'
-import { useAppSelector, useI18n, useInitializer } from './common/hooks'
+import {
+  useAppSelector,
+  useI18n,
+  useInitializer,
+  useNotification,
+} from './common/hooks'
 import { getLanguage, getSettings } from './features/settings/settingsSlice'
 
 const drawerWidth = 300
@@ -31,6 +37,7 @@ function App() {
   const locale = useAppSelector(getLanguage)
   const messages = useI18n()
   const settings = useAppSelector(getSettings)
+  const { notification, popNotification } = useNotification()
 
   const theme = useMemo(() => {
     return createTheme({
@@ -145,6 +152,12 @@ function App() {
             {!isInitialized && <CircularProgress />}
             {isInitialized && <Routes />}
           </Box>
+          <Snackbar
+            open={notification !== undefined}
+            autoHideDuration={4000}
+            onClose={() => popNotification()}
+            message={notification?.message}
+          />
         </Box>
       </ThemeProvider>
     </IntlProvider>

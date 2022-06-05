@@ -175,7 +175,6 @@ const timelineSlice = createSlice({
   initialState,
   reducers: {
     add: storyAdapter.addOne,
-    validate: (state, action: PayloadAction<IStory>) => {},
     setError: (state, action: PayloadAction<string>) => {
       state.error = action.payload
     },
@@ -187,7 +186,6 @@ const timelineSlice = createSlice({
         insertStory.fulfilled,
         (state, action: PayloadAction<IStory>) => {
           state.status = 'succeeded'
-          // storyAdapter.addOne(state, action.payload)
         }
       )
       .addCase(insertStory.rejected, (state, action) => {
@@ -209,7 +207,6 @@ const timelineSlice = createSlice({
       )
       .addCase(updateStory.rejected, (state, action) => {
         state.status = 'failed'
-        console.log(action.payload)
       })
       .addCase(
         deleteStory.fulfilled,

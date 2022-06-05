@@ -45,7 +45,18 @@ export function isPendingAction(action: AnyAction): action is PendingAction {
   return action.type.endsWith('/pending')
 }
 
+export type RejectedAction = ReturnType<GenericAsyncThunk['rejected']>
+
+export function isRejectedAction(action: AnyAction): action is RejectedAction {
+  return action.type.endsWith('/rejected')
+}
+
 export interface IValidityState {
   valid: boolean
   error: string | null
+}
+
+export interface INotification {
+  id: number
+  message: string
 }
