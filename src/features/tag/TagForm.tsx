@@ -15,6 +15,7 @@ import { ITag } from '../../app/types'
 import { insertTag, updateTag, deleteTag, fetchTagById } from './tagSlice'
 import { useAppDispatch } from '../../common/hooks'
 import ColorPicker from '../../components/ColorPicker'
+import { push } from '../notification/notificationSlice'
 
 interface IFormState {
   isNameInvalid: boolean
@@ -91,13 +92,14 @@ export default () => {
     try {
       dispatch(updateFormState({ status: 'submitting' }))
       if (hasTagId) {
-        await appDispatch(updateTag(formState.tag))
+        await appDispatch(updateTag(formState.tag)).unwrap()
       } else {
-        await appDispatch(insertTag(formState.tag))
+        await appDispatch(insertTag(formState.tag)).unwrap()
       }
       navigate('/tags')
     } catch (error) {
       dispatch(updateFormState({ status: 'ready' }))
+      appDispatch(push({ message: 'Failed to submit', type: 'error' }))
     }
   }
 
@@ -108,10 +110,11 @@ export default () => {
   const handleDelete = async () => {
     try {
       dispatch(updateFormState({ status: 'deleting' }))
-      await appDispatch(deleteTag(formState.tag))
+      await appDispatch(deleteTag(formState.tag)).unwrap()
       navigate('/tags')
     } catch (error) {
       dispatch(updateFormState({ status: 'ready' }))
+      appDispatch(push({ message: 'Failed to delete', type: 'error' }))
     }
   }
 

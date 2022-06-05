@@ -11,6 +11,7 @@ import {
   CssBaseline,
   CircularProgress,
   Snackbar,
+  Alert,
 } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
 import EventIcon from '@mui/icons-material/Event'
@@ -156,8 +157,15 @@ function App() {
             open={notification !== undefined}
             autoHideDuration={4000}
             onClose={() => popNotification()}
-            message={notification?.message}
-          />
+          >
+            <Alert
+              onClose={() => popNotification()}
+              severity={notification?.type ?? 'info'}
+              sx={{ width: '100%' }}
+            >
+              {notification?.message}
+            </Alert>
+          </Snackbar>
         </Box>
       </ThemeProvider>
     </IntlProvider>

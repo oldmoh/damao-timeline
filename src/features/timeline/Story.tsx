@@ -47,7 +47,11 @@ export default () => {
             {tags
               .filter((tag) => story!.tagIds.includes(tag.id!))
               .map((tag) => (
-                <Chip label={tag.name} sx={{ backgroundColor: tag.color }} />
+                <Chip
+                  key={`tag-${tag.id}`}
+                  label={tag.name}
+                  sx={{ backgroundColor: tag.color }}
+                />
               ))}
           </Stack>
 

@@ -23,6 +23,7 @@ import { selectAll } from '../tag/tagSlice'
 import ColorPicker from '../../components/ColorPicker'
 import { LocalOffer } from '@mui/icons-material'
 import useLoadStory from './useLoadStory'
+import { push } from '../notification/notificationSlice'
 
 interface IFormState {
   titleValidity: IValidityState
@@ -124,15 +125,15 @@ export default () => {
     try {
       dispatch(updateFormState({ status: 'submitting' }))
       if (hasStoryId) {
-        await appDispatch(updateStory(state.story))
+        await appDispatch(updateStory(state.story)).unwrap()
         navigate(`/stories/${state.story.id}`)
       } else {
-        await appDispatch(insertStory(state.story))
+        await appDispatch(insertStory(state.story)).unwrap()
         navigate('/')
       }
     } catch (error) {
       dispatch(updateFormState({ status: 'ready' }))
-      console.log(error)
+      appDispatch(push({ message: 'Failed to submit', type: 'error' }))
     }
   }
 
@@ -143,10 +144,11 @@ export default () => {
   const handleDelete = async () => {
     try {
       dispatch(updateFormState({ status: 'deleting' }))
-      await appDispatch(deleteStory(state.story!))
+      await appDispatch(deleteStory(state.story!)).unwrap()
       navigate('/')
     } catch (error) {
       dispatch(updateFormState({ status: 'ready' }))
+      appDispatch(push({ message: 'Failed to delete', type: 'error' }))
     }
   }
 

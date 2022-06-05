@@ -40,13 +40,11 @@ export interface IStoryQueryCriteria {
 
 export type GenericAsyncThunk = AsyncThunk<unknown, unknown, any>
 export type PendingAction = ReturnType<GenericAsyncThunk['pending']>
-
 export function isPendingAction(action: AnyAction): action is PendingAction {
   return action.type.endsWith('/pending')
 }
 
 export type RejectedAction = ReturnType<GenericAsyncThunk['rejected']>
-
 export function isRejectedAction(action: AnyAction): action is RejectedAction {
   return action.type.endsWith('/rejected')
 }
@@ -57,6 +55,7 @@ export interface IValidityState {
 }
 
 export interface INotification {
-  id: number
+  id?: number | string
   message: string
+  type: 'success' | 'error' | 'warning'
 }
