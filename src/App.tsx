@@ -23,12 +23,13 @@ import { MoreActionsMenu } from './components/MoreActionsMenu'
 import Routes from './routes/Routes'
 import ListNavItem from './components/ListNavItem'
 import {
+  useAppDispatch,
   useAppSelector,
   useI18n,
   useInitializer,
-  useNotification,
 } from './common/hooks'
 import { getLanguage, getSettings } from './features/settings/settingsSlice'
+import { useNotification } from './features/notification/useNotification'
 
 const drawerWidth = 300
 
@@ -38,7 +39,7 @@ function App() {
   const locale = useAppSelector(getLanguage)
   const messages = useI18n()
   const settings = useAppSelector(getSettings)
-  const { notification, popNotification } = useNotification()
+  const { isOpen, notification, popNotification, close } = useNotification()
 
   const theme = useMemo(() => {
     return createTheme({
@@ -77,6 +78,8 @@ function App() {
       </List>
     </>
   )
+
+  const appDispatch = useAppDispatch()
 
   return (
     <IntlProvider messages={messages} locale={locale} defaultLocale="en">
@@ -154,14 +157,16 @@ function App() {
             {isInitialized && <Routes />}
           </Box>
           <Snackbar
-            open={notification !== undefined}
+            open={isOpen}
             autoHideDuration={4000}
-            onClose={() => popNotification()}
+            onClose={() => close()}
+            TransitionProps={{ onExited: () => popNotification() }}
           >
             <Alert
-              onClose={() => popNotification()}
               severity={notification?.type ?? 'info'}
               sx={{ width: '100%' }}
+              elevation={6}
+              variant="standard"
             >
               {notification?.message}
             </Alert>

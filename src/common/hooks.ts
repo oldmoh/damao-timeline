@@ -104,11 +104,3 @@ export const useI18n = () => {
 
   return messages
 }
-
-export const useNotification = () => {
-  const dispatch = useAppDispatch()
-  const notification = useAppSelector(selectFirstNotification)
-  const popNotification = () => dispatch(pop(notification?.id ?? 0))
-
-  return { notification, popNotification }
-}
