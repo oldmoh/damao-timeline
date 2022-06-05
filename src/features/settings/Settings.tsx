@@ -8,13 +8,15 @@ import {
   Switch,
   Typography,
 } from '@mui/material'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl'
+import { Helmet } from 'react-helmet'
 
 import { useAppDispatch, useAppSelector } from '../../common/hooks'
 import { getSettings, updateSettings } from './settingsSlice'
 import { Language } from '../../app/types'
 
 export default () => {
+  const intl = useIntl()
   const dispatch = useAppDispatch()
   const appSettings = useAppSelector(getSettings)
   const [lang, setLang] = useState(appSettings.lang)
@@ -36,49 +38,60 @@ export default () => {
   }
 
   return (
-    <Stack spacing={4}>
-      <Typography variant="h5">
-        <FormattedMessage id="settings.title" defaultMessage={'Settings'} />
-      </Typography>
-      <Stack spacing={2} paddingX={4}>
-        <Typography variant="body1">
-          <FormattedMessage id="settings.lang" defaultMessage={'Language'} />
+    <>
+      <Helmet>
+        <title>
+          {intl.formatMessage({
+            id: 'settings.title',
+            defaultMessage: 'Settings',
+          })}
+          - Big Cat
+        </title>
+      </Helmet>
+      <Stack spacing={4}>
+        <Typography variant="h5">
+          <FormattedMessage id="settings.title" defaultMessage={'Settings'} />
         </Typography>
-        <FormControl>
-          <Select value={lang} onChange={handleLanguageChanged}>
-            <MenuItem value="en">
-              <FormattedMessage
-                id="settings.lang.en"
-                defaultMessage={'English'}
-              />
-            </MenuItem>
-            <MenuItem value="zh-TW">
-              <FormattedMessage
-                id="settings.lang.zh-TW"
-                defaultMessage={'Chinese(Taiwan)'}
-              />
-            </MenuItem>
-            <MenuItem value="ja">
-              <FormattedMessage
-                id="settings.lang.ja"
-                defaultMessage={'Japanese'}
-              />
-            </MenuItem>
-          </Select>
-        </FormControl>
-      </Stack>
-      <Stack spacing={2} paddingX={4}>
-        <Typography variant="body1">
-          <FormattedMessage
-            id="settings.darkTheme"
-            defaultMessage={'Dark Theme'}
+        <Stack spacing={2} paddingX={4}>
+          <Typography variant="body1">
+            <FormattedMessage id="settings.lang" defaultMessage={'Language'} />
+          </Typography>
+          <FormControl>
+            <Select value={lang} onChange={handleLanguageChanged}>
+              <MenuItem value="en">
+                <FormattedMessage
+                  id="settings.lang.en"
+                  defaultMessage={'English'}
+                />
+              </MenuItem>
+              <MenuItem value="zh-TW">
+                <FormattedMessage
+                  id="settings.lang.zh-TW"
+                  defaultMessage={'Chinese(Taiwan)'}
+                />
+              </MenuItem>
+              <MenuItem value="ja">
+                <FormattedMessage
+                  id="settings.lang.ja"
+                  defaultMessage={'Japanese'}
+                />
+              </MenuItem>
+            </Select>
+          </FormControl>
+        </Stack>
+        <Stack spacing={2} paddingX={4}>
+          <Typography variant="body1">
+            <FormattedMessage
+              id="settings.darkTheme"
+              defaultMessage={'Dark Theme'}
+            />
+          </Typography>
+          <Switch
+            onChange={handlModeSwithced}
+            checked={appSettings.theme === 'dark'}
           />
-        </Typography>
-        <Switch
-          onChange={handlModeSwithced}
-          checked={appSettings.theme === 'dark'}
-        />
+        </Stack>
       </Stack>
-    </Stack>
+    </>
   )
 }

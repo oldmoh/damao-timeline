@@ -1,7 +1,6 @@
 import { useState } from 'react'
-
 import { IconButton, Menu, MenuItem } from '@mui/material'
-import SettingsIcon from '@mui/icons-material/Settings'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { FormattedMessage } from 'react-intl'
 import { useNavigate } from 'react-router-dom'
 
@@ -31,7 +30,7 @@ export const MoreActionsMenu = () => {
         aria-haspopup="true"
         aria-expanded={isOpened ? 'true' : undefined}
       >
-        <SettingsIcon />
+        <MoreVertIcon />
       </IconButton>
       <Menu
         id="more-actions-menu"

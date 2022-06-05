@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  Button,
   CircularProgress,
   Fab,
   List,
@@ -11,19 +10,20 @@ import {
   ListItemText,
   Stack,
 } from '@mui/material'
-import { Box } from '@mui/system'
+import { Helmet } from 'react-helmet'
 import AddIcon from '@mui/icons-material/Add'
 
 import { useAppDispatch, useAppSelector } from '../../common/hooks'
 import { getTagStatus, selectAll, selectAllTags } from './tagSlice'
 import { LocalOffer } from '@mui/icons-material'
-import { FormattedMessage } from 'react-intl'
+import { useIntl } from 'react-intl'
 
 export default () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const tags = useAppSelector(selectAll)
   const status = useAppSelector(getTagStatus)
+  const intl = useIntl()
 
   const listItems = tags.map((tag) => (
     <ListItem key={`TimelineTag-${tag.id}`}>
@@ -45,6 +45,12 @@ export default () => {
 
   return (
     <>
+      <Helmet>
+        <title>
+          {intl.formatMessage({ id: 'tags.title', defaultMessage: 'Tag' })}- Big
+          Cat
+        </title>
+      </Helmet>
       <Stack spacing={4}>
         {status === 'loading' && <CircularProgress />}
         {status === 'succeeded' && <List>{listItems}</List>}

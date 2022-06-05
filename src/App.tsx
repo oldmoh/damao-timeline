@@ -16,6 +16,7 @@ import MenuIcon from '@mui/icons-material/Menu'
 import EventIcon from '@mui/icons-material/Event'
 import BookmarkIcon from '@mui/icons-material/Bookmark'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
+import { Helmet } from 'react-helmet'
 
 import './App.scss'
 import { MoreActionsMenu } from './components/MoreActionsMenu'
@@ -51,6 +52,7 @@ function App() {
   return (
     <IntlProvider messages={messages} locale={locale} defaultLocale="en">
       <ThemeProvider theme={theme}>
+        <Helmet htmlAttributes={{ lang: settings.lang }}></Helmet>
         <Box sx={{ display: 'flex' }}>
           <CssBaseline />
           <AppBar

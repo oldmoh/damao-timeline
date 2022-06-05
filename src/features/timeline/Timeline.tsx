@@ -4,15 +4,17 @@ import { Box, Fab, Stack, Typography } from '@mui/material'
 import { Timeline } from '@mui/lab'
 import useInfiniteScroll from 'react-infinite-scroll-hook'
 import AddIcon from '@mui/icons-material/Add'
+import { Helmet } from 'react-helmet'
 
 import { useAppDispatch } from '../../common/hooks'
 import { clear } from './timelineSlice'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl'
 import TimelineItem from './TimelineItem'
 import useLoadStories from './useLoadStories'
 import TimelineItemSkeleton from './TimelineItemSkeleton'
 
 export default () => {
+  const intl = useIntl()
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
 
@@ -33,6 +35,15 @@ export default () => {
 
   return (
     <>
+      <Helmet>
+        <title>
+          {intl.formatMessage({
+            id: 'timeline.title',
+            defaultMessage: 'Timeline',
+          })}
+          - Big Cat
+        </title>
+      </Helmet>
       <Stack spacing={4}>
         <Typography variant="h5">
           <FormattedMessage id="timeline.title" defaultMessage={'Timeline'} />
