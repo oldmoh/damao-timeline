@@ -33,15 +33,21 @@ export default () => {
   const navigate = useNavigate()
   const tags = useAppSelector(selectAll)
   const timelineStatus = useAppSelector(getTimelineStatus)
-  const { isLoading, story, hasStoryId } = useLoadStory()
+  const { isLoading, story, error } = useLoadStory()
   const { state, update, setStory, generateStory } = useStoryForm()
   const [status, setStatus] = useState<Status>('ready')
 
   useEffect(() => {
     if (isLoading) return
-    if (story === undefined) return
+    if (story === undefined) {
+      if (error !== null) {
+        appDispatch(push(error))
+      }
+      navigate('/')
+      return
+    }
     setStory(story)
-  }, [isLoading, story])
+  }, [isLoading, story, error])
 
   useEffect(() => {
     if (timelineStatus === 'loading') return
@@ -70,7 +76,7 @@ export default () => {
   }
 
   const handleClose = () => {
-    navigate(hasStoryId ? `/stories/${story!.id}` : '/')
+    navigate(`/stories/${story!.id}`)
   }
 
   const handleDelete = async () => {
@@ -122,11 +128,7 @@ export default () => {
   return (
     <Stack spacing={2}>
       <Typography variant="h5">
-        {hasStoryId ? (
-          <FormattedMessage defaultMessage="Edit" id="story.form.title.edit" />
-        ) : (
-          <FormattedMessage defaultMessage="Add" id="story.form.title.add" />
-        )}
+        <FormattedMessage defaultMessage="Edit" id="story.form.title.edit" />
       </Typography>
       <form onSubmit={handleSubmit}>
         <Stack spacing={3} sx={{ marginTop: 3, marginBottom: 3 }}>

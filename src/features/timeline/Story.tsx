@@ -6,18 +6,32 @@ import {
   Stack,
   Typography,
 } from '@mui/material'
+import { useEffect } from 'react'
 import { FormattedDate, FormattedMessage } from 'react-intl'
 import { useNavigate } from 'react-router-dom'
 
-import { useAppSelector } from '../../common/hooks'
+import { useAppDispatch, useAppSelector } from '../../common/hooks'
+import { push } from '../notification/notificationSlice'
 import { selectAll } from '../tag/tagSlice'
 import useLoadStory from './useLoadStory'
 
 export default () => {
+  const dispatch = useAppDispatch()
   const tags = useAppSelector(selectAll)
   const navigate = useNavigate()
 
-  const { isLoading, story } = useLoadStory()
+  const { isLoading, story, error } = useLoadStory()
+
+  useEffect(() => {
+    if (isLoading) return
+    if (story === undefined) {
+      if (error !== null) {
+        dispatch(push(error))
+      }
+      navigate('/')
+      return
+    }
+  }, [isLoading, story, error])
 
   if (!isLoading && story === undefined) return <div></div>
 

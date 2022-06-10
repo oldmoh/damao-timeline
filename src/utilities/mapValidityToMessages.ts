@@ -1,4 +1,6 @@
-export default (validity: ValidityState) => {
+import { IntlMessage } from '../app/types'
+
+export default function (validity: ValidityState): IntlMessage | null {
   if (validity.valid) return null
 
   if (validity.valueMissing)

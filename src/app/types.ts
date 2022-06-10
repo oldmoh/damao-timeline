@@ -49,18 +49,16 @@ export function isRejectedAction(action: AnyAction): action is RejectedAction {
   return action.type.endsWith('/rejected')
 }
 
-export interface ValidityMessage {
-  id: string
-  defaultMessage: string
-}
-
 export interface NotificationMessage {
   id?: number | string
   message: string
   type: 'success' | 'error' | 'warning'
 }
 
-export type IntlMessage = { id: string; defaultMessage: string }
+export interface IntlMessage {
+  id: string
+  defaultMessage: string
+}
 export type Input<T> = { value: T; error: IntlMessage | null }
 export type StringInput = Input<string>
 export type NumberInput = Input<number>
