@@ -49,9 +49,9 @@ export function isRejectedAction(action: AnyAction): action is RejectedAction {
   return action.type.endsWith('/rejected')
 }
 
-export interface IValidityState {
-  valid: boolean
-  error: string | null
+export interface ValidityMessage {
+  id: string
+  defaultMessage: string
 }
 
 export interface INotification {
@@ -59,3 +59,10 @@ export interface INotification {
   message: string
   type: 'success' | 'error' | 'warning'
 }
+
+export type IntlMessage = { id: string; defaultMessage: string }
+export type Input<T> = { value: T; error: IntlMessage | null }
+export type StringInput = Input<string>
+export type NumberInput = Input<number>
+export type NumberArrayInput = Input<number[]>
+export type BooleanInput = Input<boolean>

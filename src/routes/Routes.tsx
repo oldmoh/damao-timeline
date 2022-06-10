@@ -1,7 +1,7 @@
 import { useRoutes } from 'react-router-dom'
 
 import Timeline from '../features/timeline/Timeline'
-import StoryForm from '../features/timeline/StoryForm'
+import UpdateStoryForm from '../features/timeline/UpdateStoryForm'
 import Tags from '../features/tag/Tags'
 import TagForm from '../features/tag/TagForm'
 import NotFoundPage from '../components/NotFoundPage'
@@ -9,6 +9,7 @@ import Stories from '../features/timeline/Stories'
 import TagTable from '../features/tag/TagTable'
 import Settings from '../features/settings/Settings'
 import Story from '../features/timeline/Story'
+import AddStoryForm from '../features/timeline/AddStoryForm'
 
 export default () => {
   const routes = useRoutes([
@@ -17,9 +18,9 @@ export default () => {
       path: '/stories',
       element: <Stories />,
       children: [
-        { path: 'create', element: <StoryForm /> },
+        { path: 'create', element: <AddStoryForm /> },
         { path: ':storyId', element: <Story /> },
-        { path: ':storyId/update', element: <StoryForm /> },
+        { path: ':storyId/update', element: <UpdateStoryForm /> },
       ],
     },
     {

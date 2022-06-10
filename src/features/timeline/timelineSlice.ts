@@ -127,7 +127,6 @@ export const updateStory = createAsyncThunk<
     if (story.id === undefined) {
       return thunkAPI.rejectWithValue('Story id is missing.')
     }
-
     story.updatedAt = new Date().getTime()
     story.version = story.version === undefined ? 1 : story.version + 1
     await db.transaction('rw', db.stories, async () => {
