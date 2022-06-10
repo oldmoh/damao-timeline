@@ -8,17 +8,17 @@ import {
 } from '@reduxjs/toolkit'
 import { RootState } from '../../app/store'
 import { db } from '../../app/db'
-import { IStoryQueryCriteria, IStory, isPendingAction } from '../../app/types'
+import { StoryQueryCriteria, Story, isPendingAction } from '../../app/types'
 
-interface TimlineState extends EntityState<IStory> {
+interface TimlineState extends EntityState<Story> {
   status: 'idle' | 'loading' | 'succeeded' | 'failed'
   error: string | null
   totalCount: number
-  queryCriteria: IStoryQueryCriteria
-  story?: IStory
+  queryCriteria: StoryQueryCriteria
+  story?: Story
 }
 
-const storyAdapter = createEntityAdapter<IStory>({
+const storyAdapter = createEntityAdapter<Story>({
   selectId: (story) => story.id!,
 })
 
@@ -34,7 +34,7 @@ const initialState: TimlineState = storyAdapter.getInitialState({
 })
 
 export const fetchStories = createAsyncThunk<
-  IStory[],
+  Story[],
   void,
   { state: RootState }
 >('timeline/fetchStories', async (_, thunkAPI) => {
@@ -102,7 +102,7 @@ export const fetchStoryById = createAsyncThunk(
 
 export const insertStory = createAsyncThunk(
   'timeline/insert',
-  async (story: IStory, thunkAPI) => {
+  async (story: Story, thunkAPI) => {
     story.version = story.version === undefined ? 1 : story.version + 1
     story.createAt = new Date().getTime()
     story.updatedAt = new Date().getTime()
@@ -118,42 +118,41 @@ export const insertStory = createAsyncThunk(
   }
 )
 
-export const updateStory = createAsyncThunk<
-  IStory,
-  IStory,
-  { state: RootState }
->('timeline/update', async (story: IStory, thunkAPI) => {
-  try {
-    if (story.id === undefined) {
-      return thunkAPI.rejectWithValue('Story id is missing.')
+export const updateStory = createAsyncThunk<Story, Story, { state: RootState }>(
+  'timeline/update',
+  async (story: Story, thunkAPI) => {
+    try {
+      if (story.id === undefined) {
+        return thunkAPI.rejectWithValue('Story id is missing.')
+      }
+      story.updatedAt = new Date().getTime()
+      story.version = story.version === undefined ? 1 : story.version + 1
+      await db.transaction('rw', db.stories, async () => {
+        const record = await db.stories.get(story.id!)
+        if (record === undefined || record.version === undefined) {
+          return thunkAPI.rejectWithValue('Story does not exist.')
+        }
+        if (story.version! <= record.version) {
+          return thunkAPI.rejectWithValue('Optimisitc lock is hanged.')
+        }
+        const updatedRecordCount: number = await db.stories.update(
+          story.id!,
+          story
+        )
+        if (updatedRecordCount === 0) {
+          return thunkAPI.rejectWithValue('Update failed.')
+        }
+      })
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error)
     }
-    story.updatedAt = new Date().getTime()
-    story.version = story.version === undefined ? 1 : story.version + 1
-    await db.transaction('rw', db.stories, async () => {
-      const record = await db.stories.get(story.id!)
-      if (record === undefined || record.version === undefined) {
-        return thunkAPI.rejectWithValue('Story does not exist.')
-      }
-      if (story.version! <= record.version) {
-        return thunkAPI.rejectWithValue('Optimisitc lock is hanged.')
-      }
-      const updatedRecordCount: number = await db.stories.update(
-        story.id!,
-        story
-      )
-      if (updatedRecordCount === 0) {
-        return thunkAPI.rejectWithValue('Update failed.')
-      }
-    })
-  } catch (error) {
-    return thunkAPI.rejectWithValue(error)
+    return story
   }
-  return story
-})
+)
 
 export const deleteStory = createAsyncThunk(
   'timeline/delete',
-  async (story: IStory, thunkAPI) => {
+  async (story: Story, thunkAPI) => {
     if (story.id === undefined) {
       return thunkAPI.rejectWithValue('Story id is missing.')
     }
@@ -181,39 +180,30 @@ const timelineSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(
-        insertStory.fulfilled,
-        (state, action: PayloadAction<IStory>) => {
-          state.status = 'succeeded'
-        }
-      )
+      .addCase(insertStory.fulfilled, (state, action: PayloadAction<Story>) => {
+        state.status = 'succeeded'
+      })
       .addCase(insertStory.rejected, (state, action) => {
         state.status = 'failed'
       })
-      .addCase(
-        updateStory.fulfilled,
-        (state, action: PayloadAction<IStory>) => {
-          state.status = 'succeeded'
-          const payload = action.payload
-          const updatedStory: Update<IStory> = {
-            id: payload.id!,
-            changes: payload,
-          }
-          if (state.ids.includes(payload.id!)) {
-            storyAdapter.updateOne(state, updatedStory)
-          }
+      .addCase(updateStory.fulfilled, (state, action: PayloadAction<Story>) => {
+        state.status = 'succeeded'
+        const payload = action.payload
+        const updatedStory: Update<Story> = {
+          id: payload.id!,
+          changes: payload,
         }
-      )
+        if (state.ids.includes(payload.id!)) {
+          storyAdapter.updateOne(state, updatedStory)
+        }
+      })
       .addCase(updateStory.rejected, (state, action) => {
         state.status = 'failed'
       })
-      .addCase(
-        deleteStory.fulfilled,
-        (state, action: PayloadAction<IStory>) => {
-          state.status = 'succeeded'
-          storyAdapter.removeOne(state, action.payload.id!)
-        }
-      )
+      .addCase(deleteStory.fulfilled, (state, action: PayloadAction<Story>) => {
+        state.status = 'succeeded'
+        storyAdapter.removeOne(state, action.payload.id!)
+      })
       .addCase(deleteStory.rejected, (state, action) => {
         state.status = 'failed'
       })

@@ -8,14 +8,14 @@ import {
 } from '@reduxjs/toolkit'
 import { db } from '../../app/db'
 import { RootState } from '../../app/store'
-import { isPendingAction, ITag } from '../../app/types'
+import { isPendingAction, Tag } from '../../app/types'
 
-interface TagState extends EntityState<ITag> {
+interface TagState extends EntityState<Tag> {
   status: 'idle' | 'loading' | 'succeeded' | 'failed'
   error: string | null
 }
 
-const tagAdapter = createEntityAdapter<ITag>({
+const tagAdapter = createEntityAdapter<Tag>({
   selectId: (tag) => tag.id!,
 })
 
@@ -27,7 +27,7 @@ const initialState: TagState = tagAdapter.getInitialState({
 export const selectAllTags = createAsyncThunk(
   'tag/selectAll',
   async (tag: void, thunkAPI) => {
-    let tags: ITag[] = []
+    let tags: Tag[] = []
     try {
       tags = await db.transaction(
         'r',
@@ -58,7 +58,7 @@ export const fetchTagById = createAsyncThunk(
 
 export const insertTag = createAsyncThunk(
   'tag/insert',
-  async (tag: ITag, thunkAPI) => {
+  async (tag: Tag, thunkAPI) => {
     tag.version = tag.version === undefined ? 1 : tag.version + 1
     tag.createAt = new Date().getTime()
     tag.updatedAt = new Date().getTime()
@@ -76,7 +76,7 @@ export const insertTag = createAsyncThunk(
 
 export const updateTag = createAsyncThunk(
   'tag/update',
-  async (tag: ITag, thunkAPI) => {
+  async (tag: Tag, thunkAPI) => {
     try {
       if (tag.id === undefined) {
         return thunkAPI.rejectWithValue('Tag id is missing.')
@@ -107,7 +107,7 @@ export const updateTag = createAsyncThunk(
 
 export const deleteTag = createAsyncThunk(
   'tag/delete',
-  async (tag: ITag, thunkAPI) => {
+  async (tag: Tag, thunkAPI) => {
     if (tag.id === undefined) {
       return thunkAPI.rejectWithValue('Tag id is missing.')
     }
@@ -140,17 +140,17 @@ const tagSlice = createSlice({
       .addCase(selectAllTags.rejected, (state, action) => {
         state.status = 'failed'
       })
-      .addCase(insertTag.fulfilled, (state, action: PayloadAction<ITag>) => {
+      .addCase(insertTag.fulfilled, (state, action: PayloadAction<Tag>) => {
         state.status = 'succeeded'
         tagAdapter.addOne(state, action.payload)
       })
       .addCase(insertTag.rejected, (state, action) => {
         state.status = 'failed'
       })
-      .addCase(updateTag.fulfilled, (state, action: PayloadAction<ITag>) => {
+      .addCase(updateTag.fulfilled, (state, action: PayloadAction<Tag>) => {
         state.status = 'succeeded'
         const payload = action.payload
-        const updatedTag: Update<ITag> = {
+        const updatedTag: Update<Tag> = {
           id: payload.id!,
           changes: payload,
         }
@@ -159,7 +159,7 @@ const tagSlice = createSlice({
       .addCase(updateTag.rejected, (state, action) => {
         state.status = 'failed'
       })
-      .addCase(deleteTag.fulfilled, (state, action: PayloadAction<ITag>) => {
+      .addCase(deleteTag.fulfilled, (state, action: PayloadAction<Tag>) => {
         state.status = 'succeeded'
         tagAdapter.removeOne(state, action.payload.id!)
       })

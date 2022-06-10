@@ -7,9 +7,9 @@ import {
 } from '@reduxjs/toolkit'
 
 import { RootState } from '../../app/store'
-import { INotification, isRejectedAction } from '../../app/types'
+import { NotificationMessage, isRejectedAction } from '../../app/types'
 
-const notificationAdapter = createEntityAdapter<INotification>({
+const notificationAdapter = createEntityAdapter<NotificationMessage>({
   selectId: (message) => message.id!,
 })
 
@@ -17,7 +17,7 @@ const notificationSlice = createSlice({
   name: 'notification',
   initialState: notificationAdapter.getInitialState({}),
   reducers: {
-    push: (state, action: PayloadAction<INotification>) =>
+    push: (state, action: PayloadAction<NotificationMessage>) =>
       notificationAdapter.addOne(state, {
         ...action.payload,
         id: parseInt(nanoid()),

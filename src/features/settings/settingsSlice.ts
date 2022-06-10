@@ -7,11 +7,11 @@ import {
 } from '@reduxjs/toolkit'
 import { db } from '../../app/db'
 import { RootState } from '../../app/store'
-import { ISettings, isPendingAction, Language } from '../../app/types'
+import { Settings, isPendingAction, Language } from '../../app/types'
 
 interface SettingsState {
   status: 'idle' | 'loading' | 'succeeded' | 'failed'
-  settings: ISettings
+  settings: Settings
   error: string | null
 }
 
@@ -38,7 +38,7 @@ export const fetchSettings = createAsyncThunk(
 
 export const insertSettings = createAsyncThunk(
   'settings/insertSettings',
-  async (settings: ISettings, thunkAPI) => {
+  async (settings: Settings, thunkAPI) => {
     try {
       const id = await db.transaction('rw', db.settings, async () => {
         return await db.settings.add(settings)
@@ -53,7 +53,7 @@ export const insertSettings = createAsyncThunk(
 
 export const updateSettings = createAsyncThunk(
   'settings/updateSettings',
-  async (settings: ISettings, thunkAPI) => {
+  async (settings: Settings, thunkAPI) => {
     try {
       return await db.transaction('rw', db.settings, async () => {
         const result = await db.settings.update(settings.id!, settings)

@@ -11,7 +11,7 @@ import { FormattedMessage } from 'react-intl'
 import { LoadingButton } from '@mui/lab'
 import { ColorResult } from 'react-color'
 
-import { ITag } from '../../app/types'
+import { Tag } from '../../app/types'
 import { insertTag, updateTag, deleteTag, fetchTagById } from './tagSlice'
 import { useAppDispatch } from '../../common/hooks'
 import ColorPicker from '../../components/ColorPicker'
@@ -21,7 +21,7 @@ interface IFormState {
   isNameInvalid: boolean
   isDescriptionInvalid: boolean
   isColorInvalid: boolean
-  tag: ITag
+  tag: Tag
   status: 'loading' | 'ready' | 'submitting' | 'deleting'
 }
 

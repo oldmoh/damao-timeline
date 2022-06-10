@@ -1,7 +1,7 @@
 import { useEffect, useReducer, useState } from 'react'
 import {
   BooleanInput,
-  IStory,
+  Story,
   NumberArrayInput,
   NumberInput,
   StringInput,
@@ -47,7 +47,7 @@ const reducer = (
 }
 
 export const useStoryForm = () => {
-  const [story, setStory] = useState<IStory | null>(null)
+  const [story, setStory] = useState<Story | null>(null)
   const [state, dispatch] = useReducer(reducer, initialState)
 
   const update = (value: UpdateArgument) => {

@@ -8,7 +8,7 @@ import {
   getLanguage,
   insertSettings,
 } from '../features/settings/settingsSlice'
-import { ISettings, Language } from '../app/types'
+import { Settings, Language } from '../app/types'
 import {
   pop,
   selectFirstNotification,
@@ -48,7 +48,7 @@ export const useInitializer = () => {
       }
 
       try {
-        let settings: ISettings = { lang: 'en', theme: 'light' }
+        let settings: Settings = { lang: 'en', theme: 'light' }
         if (window.navigator && window.navigator.language) {
           const supportedLocales: Language[] = ['en', 'zh-TW', 'ja']
           const locale = supportedLocales.find((lang) =>

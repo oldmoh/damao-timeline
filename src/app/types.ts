@@ -6,7 +6,7 @@ export interface EntityBase {
   updatedAt?: number
 }
 
-export interface IStory extends EntityBase {
+export interface Story extends EntityBase {
   id?: number
   title: string
   happenedAt: number
@@ -16,14 +16,14 @@ export interface IStory extends EntityBase {
   isArchived: boolean
 }
 
-export interface ITag extends EntityBase {
+export interface Tag extends EntityBase {
   id?: number
   name: string
   description: string
   color: string
 }
 
-export interface ISettings extends EntityBase {
+export interface Settings extends EntityBase {
   id?: number
   lang: Language
   theme: 'light' | 'dark'
@@ -31,7 +31,7 @@ export interface ISettings extends EntityBase {
 
 export type Language = 'en' | 'zh-TW' | 'ja'
 
-export interface IStoryQueryCriteria {
+export interface StoryQueryCriteria {
   from?: number
   to?: number
   order?: 'ascend' | 'descend'
@@ -54,7 +54,7 @@ export interface ValidityMessage {
   defaultMessage: string
 }
 
-export interface INotification {
+export interface NotificationMessage {
   id?: number | string
   message: string
   type: 'success' | 'error' | 'warning'
