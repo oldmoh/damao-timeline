@@ -1,10 +1,4 @@
-import {
-  AnyAction,
-  AsyncThunk,
-  createAsyncThunk,
-  createSlice,
-  PayloadAction,
-} from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { db } from '../../app/db'
 import { RootState } from '../../app/store'
 import { Settings, isPendingAction, Language } from '../../app/types'
@@ -36,15 +30,20 @@ export const fetchSettings = createAsyncThunk(
   }
 )
 
-export const insertSettings = createAsyncThunk(
-  'settings/insertSettings',
-  async (settings: Settings, thunkAPI) => {
+export const initializeSettings = createAsyncThunk(
+  'settings/initializeSettings',
+  async (initalSettings: Settings, thunkAPI) => {
     try {
-      const id = await db.transaction('rw', db.settings, async () => {
-        return await db.settings.add(settings)
+      const settings = await db.transaction('r', db.settings, async () => {
+        return await db.settings.toCollection().first()
       })
-      settings.id = id
-      return settings
+      if (settings) return settings
+
+      const id = await db.transaction('rw', db.settings, async () => {
+        return await db.settings.add(initalSettings)
+      })
+      initalSettings.id = id
+      return initalSettings
     } catch (error) {
       return thunkAPI.rejectWithValue(error)
     }
@@ -94,11 +93,11 @@ const settingsSlice = createSlice({
         state.status = 'failed'
         console.log(action)
       })
-      .addCase(insertSettings.fulfilled, (state, action) => {
+      .addCase(initializeSettings.fulfilled, (state, action) => {
         state.status = 'succeeded'
         state.settings = action.payload
       })
-      .addCase(insertSettings.rejected, (state, action) => {
+      .addCase(initializeSettings.rejected, (state, action) => {
         state.status = 'failed'
         console.log(action)
       })

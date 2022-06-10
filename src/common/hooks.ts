@@ -4,15 +4,10 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 import { selectAllTags } from '../features/tag/tagSlice'
 import type { RootState, AppDispatch } from '../app/store'
 import {
-  fetchSettings,
   getLanguage,
-  insertSettings,
+  initializeSettings,
 } from '../features/settings/settingsSlice'
 import { Settings, Language } from '../app/types'
-import {
-  pop,
-  selectFirstNotification,
-} from '../features/notification/notificationSlice'
 
 // Use throughout your app instead of plain `useDispatch` and `useSelector`
 export const useAppDispatch = () => useDispatch<AppDispatch>()
@@ -29,24 +24,6 @@ export const useInitializer = () => {
         console.log(error)
       }
 
-      let hasSettings = false
-      try {
-        await dispatch(fetchSettings()).unwrap()
-        hasSettings = true
-        //setIsInitialized(true)
-      } catch (error) {
-        if (typeof error === 'string' && error === 'no settings') {
-          hasSettings = false
-        } else {
-          console.log(error)
-        }
-      }
-
-      if (hasSettings) {
-        setIsInitialized(true)
-        return
-      }
-
       try {
         let settings: Settings = { lang: 'en', theme: 'light' }
         if (window.navigator && window.navigator.language) {
@@ -54,15 +31,19 @@ export const useInitializer = () => {
           const locale = supportedLocales.find((lang) =>
             new RegExp(`^${lang}\b`).test(navigator.language)
           )
-          if (locale !== undefined) settings.lang = locale
+          if (locale !== undefined) {
+            settings.lang = locale
+          }
         }
+
         if (
           window.matchMedia &&
           window.matchMedia('(prefers-color-scheme: dark)').matches
         ) {
           settings.theme = 'dark'
         }
-        await dispatch(insertSettings(settings))
+
+        await dispatch(initializeSettings(settings))
       } catch (error) {
         console.log(error)
       }
