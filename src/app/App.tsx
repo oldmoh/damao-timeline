@@ -18,14 +18,13 @@ import BookmarkIcon from '@mui/icons-material/Bookmark'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { Helmet } from 'react-helmet'
 
-import './App.scss'
-import { MoreActionsMenu } from './components/MoreActionsMenu'
-import Routes from './routes/Routes'
-import ListNavItem from './components/ListNavItem'
-import { useAppSelector, useI18n, useInitializer } from './common/hooks'
-import { getLanguage, getSettings } from './features/settings/settingsSlice'
-import { useNotification } from './features/notification/useNotification'
-import Drawer, { drawerWidth } from './components/Drawer'
+import { MoreActionsMenu } from '../components/MoreActionsMenu'
+import Routes from '../routes/Routes'
+import ListNavItem from '../components/ListNavItem'
+import { useAppSelector, useI18n, useInitializer } from '../common/hooks'
+import { getLanguage, getSettings } from '../features/settings/settingsSlice'
+import { useNotification } from '../features/notification/useNotification'
+import Drawer, { drawerWidth } from '../components/Drawer'
 
 function App() {
   const isInitialized = useInitializer()

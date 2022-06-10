@@ -1,5 +1,4 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit'
-import counterReducer from '../features/counter/counterSlice'
 import timelineReducer from '../features/timeline/timelineSlice'
 import tagReducer from '../features/tag/tagSlice'
 import settingsReducer from '../features/settings/settingsSlice'
@@ -7,7 +6,6 @@ import notificationSlice from '../features/notification/notificationSlice'
 
 export const store = configureStore({
   reducer: {
-    counter: counterReducer,
     tag: tagReducer,
     timeline: timelineReducer,
     settings: settingsReducer,
