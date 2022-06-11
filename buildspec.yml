@@ -9,6 +9,7 @@ phases:
   pre_build:
     commands:
       - echo Prebuild
+      - npm run lang:compile
   build:
     commands:
       - npm run build
