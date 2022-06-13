@@ -6,7 +6,8 @@ import {
   SxProps,
   Theme,
 } from '@mui/material'
-import { Link, useMatch } from 'react-router-dom'
+import { forwardRef, useMemo } from 'react'
+import { Link, LinkProps, useMatch } from 'react-router-dom'
 
 export default (props: {
   linkName: string | React.ReactNode
@@ -19,11 +20,26 @@ export default (props: {
 
   const activeStyle: SxProps<Theme> = pathMatch ? {} : {}
 
+  const WrappedLink = useMemo(
+    () =>
+      forwardRef<HTMLAnchorElement, Omit<LinkProps, 'to'>>((linkProps, ref) => {
+        return <Link ref={ref} to={to} {...linkProps} />
+      }),
+    [to]
+  )
+
   return (
-    <ListItem to={to} component={Link}>
-      <ListItemButton onClick={props.onClick}>
+    <ListItem component={WrappedLink}>
+      <ListItemButton onClick={props.onClick} TouchRippleProps={{}}>
         <ListItemIcon>{icon}</ListItemIcon>
-        <ListItemText primary={linkName} />
+        <ListItemText
+          primary={linkName}
+          primaryTypographyProps={{
+            color: 'primary',
+            variant: 'body1',
+            fontWeight: 600,
+          }}
+        />
       </ListItemButton>
     </ListItem>
   )
