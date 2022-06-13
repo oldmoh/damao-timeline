@@ -18,4 +18,5 @@ phases:
       - echo Postbuild
 artifacts:
   files:
-    - build/*
+    - '**/*'
+  base-directory: 'build'
