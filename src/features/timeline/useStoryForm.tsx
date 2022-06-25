@@ -22,7 +22,7 @@ const initialState: State = {
   color: { value: '', error: null },
   tagIds: { value: [], error: null },
   isArchived: { value: false, error: null },
-  happenedAt: { value: 0, error: null },
+  happenedAt: { value: new Date().getTime(), error: null },
 }
 
 export type UpdateArgument = {

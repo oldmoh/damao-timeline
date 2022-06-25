@@ -9,9 +9,8 @@ import {
   TextField,
   Typography,
   ButtonGroup,
-  CircularProgress,
 } from '@mui/material'
-import { DateTimePicker, LoadingButton, LocalizationProvider } from '@mui/lab'
+import { LoadingButton, LocalizationProvider, MobileDatePicker } from '@mui/lab'
 import DateAdapter from '@mui/lab/AdapterMoment'
 import { FormattedMessage } from 'react-intl'
 import { ColorResult } from 'react-color'
@@ -152,7 +151,7 @@ export default () => {
             }}
           />
           <LocalizationProvider dateAdapter={DateAdapter}>
-            <DateTimePicker
+            <MobileDatePicker
               label={
                 <FormattedMessage
                   defaultMessage="Happened at"
