@@ -1,5 +1,11 @@
 import { useState } from 'react'
 import {
+  Button,
+  ButtonGroup,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
   MenuItem,
   Select,
@@ -8,21 +14,22 @@ import {
   Switch,
   Typography,
 } from '@mui/material'
+import { LoadingButton } from '@mui/lab'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { Helmet } from 'react-helmet'
 
 import { useAppDispatch, useAppSelector } from '../../common/hooks'
-import { getSettings, updateSettings } from './settingsSlice'
+import { getSettings, resetDatabase, updateSettings } from './settingsSlice'
 import { Language } from '../../app/types'
 
 export default () => {
   const intl = useIntl()
   const dispatch = useAppDispatch()
   const appSettings = useAppSelector(getSettings)
-  const [lang, setLang] = useState(appSettings.lang)
+  const [isReseting, setIsReseting] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
 
   const handleLanguageChanged = async (event: SelectChangeEvent) => {
-    setLang(event.target.value as Language)
     await dispatch(
       updateSettings({ ...appSettings, lang: event.target.value as Language })
     )
@@ -36,6 +43,8 @@ export default () => {
       })
     )
   }
+
+  const handleDialogClose = () => setIsOpen(false)
 
   return (
     <>
@@ -57,7 +66,7 @@ export default () => {
             <FormattedMessage id="settings.lang" defaultMessage={'Language'} />
           </Typography>
           <FormControl>
-            <Select value={lang} onChange={handleLanguageChanged}>
+            <Select value={appSettings.lang} onChange={handleLanguageChanged}>
               <MenuItem value="en">
                 <FormattedMessage
                   id="settings.lang.en"
@@ -78,8 +87,6 @@ export default () => {
               </MenuItem>
             </Select>
           </FormControl>
-        </Stack>
-        <Stack spacing={2} paddingX={4}>
           <Typography variant="body1">
             <FormattedMessage
               id="settings.darkTheme"
@@ -90,8 +97,73 @@ export default () => {
             onChange={handlModeSwithced}
             checked={appSettings.theme === 'dark'}
           />
+          <Typography variant="body1">
+            <FormattedMessage
+              id="settings.reset"
+              defaultMessage={'Clear and reset all data'}
+            />
+          </Typography>
+          <ButtonGroup>
+            <LoadingButton
+              loading={isReseting}
+              loadingIndicator={
+                <Typography variant="body1">
+                  <FormattedMessage
+                    id="settings.reset.button.loading"
+                    defaultMessage={'Reseting'}
+                  />
+                </Typography>
+              }
+              onClick={() => setIsOpen(true)}
+              variant="contained"
+              color="error"
+              sx={{ display: 'block' }}
+            >
+              <Typography variant="body1">
+                <FormattedMessage
+                  id="settings.reset.button"
+                  defaultMessage={'Reset'}
+                />
+              </Typography>
+            </LoadingButton>
+          </ButtonGroup>
         </Stack>
       </Stack>
+      <Dialog open={isOpen} onClose={handleDialogClose}>
+        <DialogTitle>
+          <FormattedMessage
+            id="settings.reset.button"
+            defaultMessage={'Reset'}
+          />
+        </DialogTitle>
+        <DialogContent>
+          <FormattedMessage
+            id="settings.reset.detail"
+            defaultMessage={'Reset'}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={async () => {
+              handleDialogClose()
+              setIsReseting(true)
+              await dispatch(resetDatabase())
+              setIsReseting(false)
+            }}
+          >
+            <FormattedMessage
+              id="settings.reset.button"
+              defaultMessage={'Reset'}
+            />
+          </Button>
+          <Button onClick={handleDialogClose}>
+            <FormattedMessage
+              id="settings.reset.button.cancel"
+              defaultMessage={'Cancel'}
+            />
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   )
 }

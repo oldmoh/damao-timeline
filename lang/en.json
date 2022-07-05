@@ -47,6 +47,21 @@
   "settings.darkTheme": {
     "defaultMessage": "Dark Theme"
   },
+  "settings.reset": {
+    "defaultMessage": "Clear and reset all data"
+  },
+  "settings.reset.detail": {
+    "defaultMessage": "Beware! You will clear all the data and there is no way to recover. Are you sure to do so?"
+  },
+  "settings.reset.button": {
+    "defaultMessage": "Reset"
+  },
+  "settings.reset.button.loading": {
+    "defaultMessage": "Reseting"
+  },
+  "settings.reset.button.cancel": {
+    "defaultMessage": "Cancel"
+  },
   "story.color": {
     "defaultMessage": "Color"
   },

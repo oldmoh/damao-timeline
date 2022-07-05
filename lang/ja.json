@@ -47,6 +47,21 @@
   "settings.title": {
     "defaultMessage": "設定"
   },
+  "settings.reset": {
+    "defaultMessage": "データをクリア"
+  },
+  "settings.reset.detail": {
+    "defaultMessage": "注意！全てのデータをクリアするとデータが戻れないので、本当にクリアしますか？"
+  },
+  "settings.reset.button": {
+    "defaultMessage": "クリア"
+  },
+  "settings.reset.button.loading": {
+    "defaultMessage": "クリア中"
+  },
+  "settings.reset.button.cancel": {
+    "defaultMessage": "キャンセル"
+  },
   "story.color": {
     "defaultMessage": "色"
   },

@@ -27,6 +27,7 @@ export interface Settings extends EntityBase {
   id?: number
   lang: Language
   theme: 'light' | 'dark'
+  isPopulated: boolean
 }
 
 export type Language = 'en' | 'zh-TW' | 'ja'

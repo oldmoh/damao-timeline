@@ -47,6 +47,21 @@
   "settings.title": {
     "defaultMessage": "設定"
   },
+  "settings.reset": {
+    "defaultMessage": "清除所有資料並重新設定資料庫"
+  },
+  "settings.reset.detail": {
+    "defaultMessage": "注意！清除後的資料是無法回復的，確定要清除並重設嗎？"
+  },
+  "settings.reset.button.loading": {
+    "defaultMessage": "重設中"
+  },
+  "settings.reset.button": {
+    "defaultMessage": "重設"
+  },
+  "settings.reset.button.cancel": {
+    "defaultMessage": "取消"
+  },
   "story.color": {
     "defaultMessage": "顏色"
   },
