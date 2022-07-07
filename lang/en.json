@@ -23,6 +23,9 @@
   "button.update": {
     "defaultMessage": "Update"
   },
+  "button.about": {
+    "defaultMessage": "About"
+  },
   "nav.tag": {
     "defaultMessage": "Tag"
   },
@@ -97,5 +100,11 @@
   },
   "timeline.title": {
     "defaultMessage": "Timeline"
+  },
+  "about.title": {
+    "defaultMessage": "About"
+  },
+  "about.detail": {
+    "defaultMessage": "Damao Timeline is a pure frontend application that enable you to store all the memorable events in your life on this app.\nThis app stores all your data in the browser on the current device so no body including me can access your data."
   }
 }

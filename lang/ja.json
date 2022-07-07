@@ -23,6 +23,9 @@
   "button.update": {
     "defaultMessage": "更新"
   },
+  "button.about": {
+    "defaultMessage": "Damao タイムラインについて"
+  },
   "nav.tag": {
     "defaultMessage": "タグ"
   },
@@ -97,5 +100,11 @@
   },
   "timeline.title": {
     "defaultMessage": "タイムライン"
+  },
+  "about.title": {
+    "defaultMessage": "Damao タイムラインについて`"
+  },
+  "about.detail": {
+    "defaultMessage": "Damao Timeline は日常生活のすべてのイベントを記録できます。\n このアプリケーションは完全にフロントエンドのアプリです。\nすべてのデータはこのデバイスのブラウザーで保存しますので、誰でもアクセスできません。"
   }
 }

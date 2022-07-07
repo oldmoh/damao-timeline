@@ -23,6 +23,9 @@
   "button.update": {
     "defaultMessage": "更新"
   },
+  "button.about": {
+    "defaultMessage": "關於 Damao 時間軸"
+  },
   "nav.tag": {
     "defaultMessage": "標籤"
   },
@@ -97,5 +100,11 @@
   },
   "timeline.title": {
     "defaultMessage": "時間軸"
+  },
+  "about.title": {
+    "defaultMessage": "Damao 時間軸"
+  },
+  "about.detail": {
+    "defaultMessage": "Damao Timeline 是一個純前端的應用程式。你可以儲存生活中的回憶在這個應用程式上。\n所有的資料都儲存在你目前使用的裝置的瀏覽器上，所以不需要擔心有任何人（包含我）可以存取你的資料。"
   }
 }
