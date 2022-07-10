@@ -27,8 +27,6 @@ const initialState: TimlineState = storyAdapter.getInitialState({
   error: null,
   totalCount: 0,
   queryCriteria: {
-    from: Date.parse('2022/01/01 15:00:00'),
-    to: new Date().getTime(),
     order: 'descend',
   },
 })
@@ -39,26 +37,21 @@ export const fetchStories = createAsyncThunk<
   { state: RootState }
 >('timeline/fetchStories', async (_, thunkAPI) => {
   const criteria = thunkAPI.getState().timeline.queryCriteria
-  try {
-    return await db.transaction('r', db.stories, db.tags, async (tx) => {
-      let collection = db.stories.orderBy('happenedAt')
-      collection.filter((story) => {
-        const happenedAt = new Date(story.happenedAt)
-        if (criteria.from && happenedAt < new Date(criteria.from)) return false
-        if (criteria.to && happenedAt > new Date(criteria.to)) return false
+  return await db.transaction('r', db.stories, db.tags, async (tx) => {
+    let collection = db.stories.orderBy('happenedAt')
+    collection.filter((story) => {
+      const happenedAt = new Date(story.happenedAt)
+      if (criteria.from && happenedAt < new Date(criteria.from)) return false
+      if (criteria.to && happenedAt > new Date(criteria.to)) return false
 
-        return true
-      })
-      if (criteria.order === 'descend') collection = collection.reverse()
-
-      let limit = 5
-      let offset = thunkAPI.getState().timeline.ids.length
-      return await collection.offset(offset).limit(limit).toArray()
+      return true
     })
-  } catch (error) {
-    console.log(error)
-    return thunkAPI.rejectWithValue(error)
-  }
+    if (criteria.order === 'descend') collection = collection.reverse()
+
+    let limit = 5
+    let offset = thunkAPI.getState().timeline.ids.length
+    return await collection.offset(offset).limit(limit).toArray()
+  })
 })
 
 export const countStories = createAsyncThunk<
@@ -67,36 +60,23 @@ export const countStories = createAsyncThunk<
   { state: RootState }
 >('timeline/countStories', async (_, thunkAPI) => {
   const criteria = thunkAPI.getState().timeline.queryCriteria
-  try {
-    return await db.transaction('r', db.stories, async (tx) => {
-      let collection = db.stories.orderBy('happenedAt')
-      collection.filter((story) => {
+  return await db.transaction('r', db.stories, async (tx) => {
+    return await db.stories
+      .filter((story) => {
         const happenedAt = new Date(story.happenedAt)
         if (criteria.from && happenedAt < new Date(criteria.from)) return false
         if (criteria.to && happenedAt > new Date(criteria.to)) return false
 
         return true
       })
-      if (criteria.order === 'descend') collection = collection.reverse()
-
-      return await collection.count()
-    })
-  } catch (error) {
-    console.log(error)
-    return thunkAPI.rejectWithValue(error)
-  }
+      .count()
+  })
 })
 
 export const fetchStoryById = createAsyncThunk(
   'timeline/fetchById',
   async (id: number, thunkAPI) => {
-    try {
-      return await db.transaction('r', db.stories, async () =>
-        db.stories.get(id)
-      )
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error)
-    }
+    return await db.transaction('r', db.stories, async () => db.stories.get(id))
   }
 )
 
@@ -106,14 +86,10 @@ export const insertStory = createAsyncThunk(
     story.version = story.version === undefined ? 1 : story.version + 1
     story.createAt = new Date().getTime()
     story.updatedAt = new Date().getTime()
-    try {
-      await db.transaction('rw', db.stories, async () => {
-        const id = await db.stories.add(story)
-        story.id = id
-      })
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error)
-    }
+    await db.transaction('rw', db.stories, async () => {
+      const id = await db.stories.add(story)
+      story.id = id
+    })
     return story
   }
 )
@@ -121,31 +97,28 @@ export const insertStory = createAsyncThunk(
 export const updateStory = createAsyncThunk<Story, Story, { state: RootState }>(
   'timeline/update',
   async (story: Story, thunkAPI) => {
-    try {
-      if (story.id === undefined) {
-        return thunkAPI.rejectWithValue('Story id is missing.')
-      }
-      story.updatedAt = new Date().getTime()
-      story.version = story.version === undefined ? 1 : story.version + 1
-      await db.transaction('rw', db.stories, async () => {
-        const record = await db.stories.get(story.id!)
-        if (record === undefined || record.version === undefined) {
-          return thunkAPI.rejectWithValue('Story does not exist.')
-        }
-        if (story.version! <= record.version) {
-          return thunkAPI.rejectWithValue('Optimisitc lock is hanged.')
-        }
-        const updatedRecordCount: number = await db.stories.update(
-          story.id!,
-          story
-        )
-        if (updatedRecordCount === 0) {
-          return thunkAPI.rejectWithValue('Update failed.')
-        }
-      })
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error)
+    if (story.id === undefined) {
+      return thunkAPI.rejectWithValue('Story id is missing.')
     }
+    story.updatedAt = new Date().getTime()
+    story.version = story.version === undefined ? 1 : story.version + 1
+    await db.transaction('rw', db.stories, async () => {
+      const record = await db.stories.get(story.id!)
+      if (record === undefined || record.version === undefined) {
+        return thunkAPI.rejectWithValue('Story does not exist.')
+      }
+      if (story.version! <= record.version) {
+        return thunkAPI.rejectWithValue('Optimisitc lock is hanged.')
+      }
+      const updatedRecordCount: number = await db.stories.update(
+        story.id!,
+        story
+      )
+      if (updatedRecordCount === 0) {
+        return thunkAPI.rejectWithValue('Update failed.')
+      }
+    })
+
     return story
   }
 )
@@ -157,13 +130,9 @@ export const deleteStory = createAsyncThunk(
       return thunkAPI.rejectWithValue('Story id is missing.')
     }
 
-    try {
-      await db.transaction('rw', db.stories, async () => {
-        await db.stories.delete(story.id!)
-      })
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error)
-    }
+    await db.transaction('rw', db.stories, async () => {
+      await db.stories.delete(story.id!)
+    })
     return story
   }
 )

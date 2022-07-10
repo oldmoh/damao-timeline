@@ -30,7 +30,7 @@ export default () => {
   })
 
   useEffect(() => {
-    dispatch(clear)
+    dispatch(clear())
   }, [])
 
   return (
